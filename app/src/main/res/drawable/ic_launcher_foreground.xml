@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Hexagonal Cyber-Shield Shadow/Backplate -->
+    <path
+        android:fillColor="#4F46E5"
+        android:pathData="M54,20 L80,31 L80,59 C80,74 69,87 54,92 C39,87 28,74 28,59 L28,31 Z" />
+
+    <!-- Main Shield Inner Body -->
+    <path
+        android:fillColor="#6366F1"
+        android:pathData="M54,23 L77,33 L77,58 C77,71 67,83 54,88 C41,83 31,71 31,58 L31,33 Z" />
+
+    <!-- High-Tech Shield Bevel Highlight -->
+    <path
+        android:fillColor="#818CF8"
+        android:pathData="M54,23 L77,33 L54,88 L31,33 Z" />
+
+    <!-- Center Deep Vault Core -->
+    <path
+        android:fillColor="#1E1B4B"
+        android:pathData="M54,34 C44,34 37,42 37,52 C37,64 45,73 54,73 C63,73 71,64 71,52 C71,42 64,34 54,34 Z" />
+
+    <!-- Padlock Shackle Arc (Cyan Electric) -->
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:pathData="M48,50 L48,44 C48,40.7 50.7,38 54,38 C57.3,38 60,40.7 60,44 L60,50" />
+
+    <!-- Padlock Vault Body -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M45,50 L63,50 C64.6,50 66,51.4 66,53 L66,64 C66,65.6 64.6,67 63,67 L45,67 C43.4,67 42,65.6 42,64 L42,53 C42,51.4 43.4,50 45,50 Z" />
+
+    <!-- Center Keyhole (Pure White Glow) -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M54,55 C52.9,55 52,55.9 52,57 C52,57.7 52.4,58.3 53,58.7 L52.5,62 L55.5,62 L55,58.7 C55.6,58.3 56,57.7 56,57 C56,55.9 55.1,55 54,55 Z" />
+
+    <!-- Cloud Data Orbits (Neon Cyan) -->
+    <path
+        android:strokeColor="#A5F3FC"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round"
+        android:pathData="M38,48 C36,46 33,48 33,51 C31,51 30,53 30,55 C30,57.5 32,59 34,59 L39,59" />
+
+    <path
+        android:strokeColor="#A5F3FC"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round"
+        android:pathData="M70,48 C72,46 75,48 75,51 C77,51 78,53 78,55 C78,57.5 76,59 74,59 L69,59" />
+
+    <!-- Sparkle Accent Dot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,26m-1.5,0a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0" />
+
+</vector>
