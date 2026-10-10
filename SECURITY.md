@@ -10,8 +10,7 @@ Only the latest release versions receive security patches and updates. We recomm
 
 | Version | Supported | Status |
 | :--- | :---: | :--- |
-| `v2.0.x` | :white_check_mark: | Current Stable Release (TDLib MTProto Engine) |
-| `v1.0.x` | :warning: | Maintenance / Critical Security Only |
+| `v1.0.x` | :white_check_mark: | Current Stable Release (TDLib MTProto Engine) |
 | `< 1.0.0` | :x: | End of Life (Unsupported) |
 
 ---

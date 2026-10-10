@@ -225,14 +225,13 @@ Vaultia is built with strict privacy and zero-trust security principles:
 
 ## 📦 Releases & Download
 
-Download the latest verified production APK from GitHub Releases:
+Download the official production APK from GitHub Releases:
 
 👉 **[Download Latest Vaultia Release](https://github.com/sentinal404/Vaultia/releases)**
 
 | Release Asset | Description | Size |
 | :--- | :--- | :---: |
-| `vaultia-v2.0-release.apk` | **Latest Production**: Bundles direct TDLib MTProto engine for 2GB zero-buffering 4K streaming | ~105 MB |
-| `vaultia-v1.0-release.apk` | **Standard Release**: Multi-worker chunk uploader & local range server | ~17 MB |
+| `vaultia-v1.0.0-release.apk` | **Vaultia v1.0.0 Production**: Complete release featuring direct TDLib MTProto engine for 2GB zero-buffering 4K streaming, multi-worker parallel chunk uploading, auto folder sync, and claymorphic UI | ~105 MB |
 
 ---
 
