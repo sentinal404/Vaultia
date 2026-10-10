@@ -10,3 +10,18 @@
 local.properties
 app/build/
 *.hprof
+
+# Built artifacts & packages
+*.apk
+*.aab
+
+# Keystores & credentials
+*.jks
+*.keystore
+signing.properties
+
+# External dependencies & research clones
+MeriAwaaz-main/
+
+# Local maintenance scripts
+*.ps1

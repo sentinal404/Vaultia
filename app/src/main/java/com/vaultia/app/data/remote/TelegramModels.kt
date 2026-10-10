@@ -29,7 +29,8 @@ data class ChatDto(
     @SerializedName("type") val type: String, // "channel", "supergroup", "group", "private"
     @SerializedName("title") val title: String? = null,
     @SerializedName("username") val username: String? = null,
-    @SerializedName("description") val description: String? = null
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("pinned_message") val pinnedMessage: MessageDto? = null
 )
 
 data class ChatMemberDto(
@@ -44,14 +45,73 @@ data class MessageDto(
     @SerializedName("message_id") val messageId: Long,
     @SerializedName("date") val date: Long,
     @SerializedName("chat") val chat: ChatDto,
+    @SerializedName("from") val from: UserDto? = null,
+    @SerializedName("text") val text: String? = null,
     @SerializedName("document") val document: DocumentDto? = null,
+    @SerializedName("video") val video: VideoDto? = null,
+    @SerializedName("animation") val animation: AnimationDto? = null,
+    @SerializedName("audio") val audio: AudioDto? = null,
+    @SerializedName("photo") val photo: List<PhotoSizeDto>? = null,
+    @SerializedName("voice") val voice: VoiceDto? = null,
     @SerializedName("caption") val caption: String? = null
+)
+
+data class AnimationDto(
+    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_unique_id") val fileUniqueId: String,
+    @SerializedName("width") val width: Int? = null,
+    @SerializedName("height") val height: Int? = null,
+    @SerializedName("duration") val duration: Int? = null,
+    @SerializedName("file_name") val fileName: String? = null,
+    @SerializedName("mime_type") val mimeType: String? = null,
+    @SerializedName("file_size") val fileSize: Long? = null,
+    @SerializedName("thumb") val thumb: PhotoSizeDto? = null
 )
 
 data class DocumentDto(
     @SerializedName("file_id") val fileId: String,
     @SerializedName("file_unique_id") val fileUniqueId: String,
     @SerializedName("file_name") val fileName: String? = null,
+    @SerializedName("mime_type") val mimeType: String? = null,
+    @SerializedName("file_size") val fileSize: Long? = null,
+    @SerializedName("thumb") val thumb: PhotoSizeDto? = null
+)
+
+data class VideoDto(
+    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_unique_id") val fileUniqueId: String,
+    @SerializedName("width") val width: Int? = null,
+    @SerializedName("height") val height: Int? = null,
+    @SerializedName("duration") val duration: Int? = null,
+    @SerializedName("file_name") val fileName: String? = null,
+    @SerializedName("mime_type") val mimeType: String? = null,
+    @SerializedName("file_size") val fileSize: Long? = null,
+    @SerializedName("thumb") val thumb: PhotoSizeDto? = null
+)
+
+data class AudioDto(
+    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_unique_id") val fileUniqueId: String,
+    @SerializedName("duration") val duration: Int? = null,
+    @SerializedName("performer") val performer: String? = null,
+    @SerializedName("title") val title: String? = null,
+    @SerializedName("file_name") val fileName: String? = null,
+    @SerializedName("mime_type") val mimeType: String? = null,
+    @SerializedName("file_size") val fileSize: Long? = null
+)
+
+data class PhotoSizeDto(
+    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_unique_id") val fileUniqueId: String,
+    @SerializedName("width") val width: Int,
+    @SerializedName("height") val height: Int,
+    @SerializedName("file_size") val fileSize: Long? = null
+)
+
+data class VoiceDto(
+    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_unique_id") val fileUniqueId: String,
+    @SerializedName("duration") val duration: Int? = null,
     @SerializedName("mime_type") val mimeType: String? = null,
     @SerializedName("file_size") val fileSize: Long? = null
 )
@@ -61,6 +121,21 @@ data class FileDto(
     @SerializedName("file_unique_id") val fileUniqueId: String,
     @SerializedName("file_size") val fileSize: Long? = null,
     @SerializedName("file_path") val filePath: String? = null
+)
+
+data class MessageIdDto(
+    @SerializedName("message_id") val messageId: Long
+)
+
+data class UpdateDto(
+    @SerializedName("update_id") val updateId: Long,
+    @SerializedName("message") val message: MessageDto? = null,
+    @SerializedName("channel_post") val channelPost: MessageDto? = null
+)
+
+data class UserProfilePhotosDto(
+    @SerializedName("total_count") val totalCount: Int,
+    @SerializedName("photos") val photos: List<List<PhotoSizeDto>> = emptyList()
 )
 
 data class ChunkPayloadMetadata(

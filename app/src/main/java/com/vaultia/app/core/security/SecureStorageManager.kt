@@ -35,7 +35,27 @@ class SecureStorageManager(context: Context) {
         private const val KEY_APP_LOCK_PIN_HASH = "key_app_lock_pin_hash"
         private const val KEY_APP_LOCK_ENABLED = "key_app_lock_enabled"
         private const val KEY_BIOMETRIC_ENABLED = "key_biometric_enabled"
+        private const val KEY_API_ID = "key_tg_api_id"
+        private const val KEY_API_HASH = "key_tg_api_hash"
+        private const val KEY_CUSTOM_API_URL = "key_tg_custom_api_url"
+        private const val KEY_THEME_MODE = "key_theme_mode" // "LIGHT", "DARK", "SYSTEM"
     }
+
+    var themeMode: String
+        get() = prefs.getString(KEY_THEME_MODE, "LIGHT") ?: "LIGHT"
+        set(value) = prefs.edit().putString(KEY_THEME_MODE, value).apply()
+
+    var apiId: String?
+        get() = prefs.getString(KEY_API_ID, null)
+        set(value) = prefs.edit().putString(KEY_API_ID, value).apply()
+
+    var apiHash: String?
+        get() = prefs.getString(KEY_API_HASH, null)
+        set(value) = prefs.edit().putString(KEY_API_HASH, value).apply()
+
+    var customApiUrl: String?
+        get() = prefs.getString(KEY_CUSTOM_API_URL, null)
+        set(value) = prefs.edit().putString(KEY_CUSTOM_API_URL, value).apply()
 
     var botToken: String?
         get() = prefs.getString(KEY_BOT_TOKEN, null)

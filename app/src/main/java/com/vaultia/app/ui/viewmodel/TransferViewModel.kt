@@ -54,7 +54,7 @@ class TransferViewModel(
     fun resumeTransfer(transferId: String, file: VaultFile? = null) {
         if (transferId.startsWith("up_")) {
             uploadManager.resumeUpload(transferId)
-        } else if (file != null) {
+        } else {
             downloadManager.resumeDownload(file, transferId)
         }
     }
@@ -68,8 +68,7 @@ class TransferViewModel(
     }
 
     fun clearCompleted() {
-        viewModelScope.launch {
-            database.transferDao().clearCompletedTransfers()
-        }
+        uploadManager.clearAllFinishedOrStuck()
+        downloadManager.clearAllFinishedOrStuck()
     }
 }

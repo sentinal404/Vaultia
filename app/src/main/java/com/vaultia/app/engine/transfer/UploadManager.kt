@@ -48,13 +48,17 @@ class UploadManager(
     private val _liveTransfers = MutableStateFlow<Map<String, TransferTask>>(emptyMap())
     val liveTransfers: StateFlow<Map<String, TransferTask>> = _liveTransfers.asStateFlow()
 
-    fun enqueueUpload(file: File, maxConcurrency: Int = Constants.DEFAULT_MAX_PARALLEL_WORKERS): String {
+    fun enqueueUpload(
+        file: File,
+        customFileName: String? = null,
+        maxConcurrency: Int = Constants.DEFAULT_MAX_PARALLEL_WORKERS
+    ): String {
         val transferId = "up_${System.currentTimeMillis()}_${file.name.hashCode()}"
         val channelId = secureStorage.channelId ?: return ""
         val primaryToken = secureStorage.botToken ?: return ""
 
         val job = scope.launch {
-            processUpload(transferId, file, channelId, primaryToken, maxConcurrency)
+            processUpload(transferId, file, channelId, primaryToken, maxConcurrency, customFileName)
         }
         activeJobs[transferId] = job
         return transferId
@@ -65,10 +69,11 @@ class UploadManager(
         sourceFile: File,
         channelId: String,
         primaryToken: String,
-        maxConcurrency: Int
+        maxConcurrency: Int,
+        customFileName: String? = null
     ) {
         // Step 1: Analyze file or retrieve existing metadata
-        val (vaultFile, chunks) = chunkEngine.analyzeFile(sourceFile)
+        val (vaultFile, chunks) = chunkEngine.analyzeFile(sourceFile, overrideFileName = customFileName)
         val fileId = vaultFile.id
 
         // Persist file and chunks
@@ -149,6 +154,9 @@ class UploadManager(
             ) ?: initialTask.copy(status = TransferStatus.COMPLETED)
             updateTransferState(finalTask)
             chunkEngine.cleanTempChunks()
+            try {
+                com.vaultia.app.VaultiaApplication.instance.cloudSyncManager.syncCatalogToCloud()
+            } catch (_: Exception) {}
         } else if (!pausedTasks.contains(transferId)) {
             val failedTask = getCurrentTask(transferId)?.copy(
                 status = TransferStatus.FAILED,
@@ -192,6 +200,12 @@ class UploadManager(
             )
             val caption = "${Constants.METADATA_TAG} ${gson.toJson(payloadMeta)}"
 
+            val remoteChunkName = if (vaultFile.totalChunks == 1) {
+                vaultFile.name
+            } else {
+                "${vaultFile.name}.part${chunkEntity.chunkIndex + 1}"
+            }
+
             val result = retryPolicy.executeWithRetry(
                 actionName = "Upload chunk ${chunkEntity.chunkIndex}",
                 isRateLimited = { err ->
@@ -203,7 +217,7 @@ class UploadManager(
                     token = token,
                     chatId = channelId,
                     chunkFile = tempChunkFile,
-                    fileName = "${vaultFile.name}.part${chunkEntity.chunkIndex + 1}",
+                    fileName = remoteChunkName,
                     caption = caption
                 )
             }
@@ -216,7 +230,8 @@ class UploadManager(
                         chunkId = chunkEntity.id,
                         status = TransferStatus.COMPLETED.name,
                         remoteMessageId = msgDto.messageId,
-                        remoteFileId = remoteDoc?.fileId
+                        remoteFileId = remoteDoc?.fileId,
+                        workerId = worker?.token ?: primaryToken
                     )
                     worker?.let { workerScheduler.markSuccess(it.id) }
 
@@ -261,25 +276,38 @@ class UploadManager(
     fun pauseUpload(transferId: String) {
         pausedTasks.add(transferId)
         activeJobs[transferId]?.cancel()
+        activeJobs.remove(transferId)
         getCurrentTask(transferId)?.let {
             updateTransferState(it.copy(status = TransferStatus.PAUSED))
+        } ?: run {
+            scope.launch {
+                database.transferDao().updateStatus(transferId, TransferStatus.PAUSED.name)
+            }
         }
     }
 
     fun resumeUpload(transferId: String, maxConcurrency: Int = Constants.DEFAULT_MAX_PARALLEL_WORKERS) {
         pausedTasks.remove(transferId)
-        val task = getCurrentTask(transferId) ?: return
-        val localPath = task.localFilePath ?: return
-        val file = File(localPath)
-        if (!file.exists()) return
+        scope.launch {
+            val task = getCurrentTask(transferId)
+                ?: database.transferDao().getTransferById(transferId)?.toDomain()
+                ?: return@launch
+            val localPath = task.localFilePath ?: return@launch
+            val file = File(localPath)
+            if (!file.exists()) return@launch
 
-        val channelId = secureStorage.channelId ?: return
-        val primaryToken = secureStorage.botToken ?: return
+            val channelId = secureStorage.channelId ?: return@launch
+            val primaryToken = secureStorage.botToken ?: return@launch
 
-        val job = scope.launch {
-            processUpload(transferId, file, channelId, primaryToken, maxConcurrency)
+            val job = scope.launch {
+                processUpload(transferId, file, channelId, primaryToken, maxConcurrency, customFileName = task.filename)
+            }
+            activeJobs[transferId] = job
         }
-        activeJobs[transferId] = job
+    }
+
+    fun retryUpload(transferId: String) {
+        resumeUpload(transferId)
     }
 
     fun cancelUpload(transferId: String) {
@@ -288,6 +316,21 @@ class UploadManager(
         activeJobs.remove(transferId)
         getCurrentTask(transferId)?.let {
             updateTransferState(it.copy(status = TransferStatus.CANCELLED))
+        }
+        scope.launch {
+            database.transferDao().updateStatus(transferId, TransferStatus.CANCELLED.name)
+        }
+    }
+
+    fun clearAllFinishedOrStuck() {
+        val updated = _liveTransfers.value.toMutableMap()
+        val toRemove = updated.filter {
+            it.value.status.isFinished || it.value.status == TransferStatus.FAILED || it.value.status == TransferStatus.CANCELLED
+        }.keys
+        toRemove.forEach { updated.remove(it) }
+        _liveTransfers.value = updated
+        scope.launch {
+            database.transferDao().clearCompletedTransfers()
         }
     }
 

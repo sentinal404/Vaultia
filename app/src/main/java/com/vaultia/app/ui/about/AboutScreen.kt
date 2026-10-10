@@ -53,6 +53,7 @@ import com.vaultia.app.core.theme.ClayPrimary
 import com.vaultia.app.core.theme.ClaySecondary
 import com.vaultia.app.ui.components.ClayButton
 import com.vaultia.app.ui.components.ClayCard
+import com.vaultia.app.ui.components.VaultiaBrandLogo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,20 +103,7 @@ fun AboutScreen(
                             .padding(vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(72.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(Brush.linearGradient(listOf(ClayPrimary, ClaySecondary))),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Security,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
+                        VaultiaBrandLogo(size = 80.dp)
 
                         Spacer(modifier = Modifier.height(12.dp))
 

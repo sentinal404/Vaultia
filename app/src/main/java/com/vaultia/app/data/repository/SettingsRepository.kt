@@ -17,7 +17,7 @@ data class UserSettings(
     val wifiOnlyUploads: Boolean = false,
     val wifiOnlyDownloads: Boolean = false,
     val autoResume: Boolean = true,
-    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
     val isAppLockEnabled: Boolean = false,
     val isBiometricEnabled: Boolean = false
 )
@@ -38,9 +38,9 @@ class SettingsRepository(context: Context) {
             wifiOnlyDownloads = prefs.getBoolean("pref_wifi_only_downloads", false),
             autoResume = prefs.getBoolean("pref_auto_resume", true),
             themeMode = try {
-                ThemeMode.valueOf(prefs.getString("pref_theme_mode", ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name)
+                ThemeMode.valueOf(prefs.getString("pref_theme_mode", ThemeMode.LIGHT.name) ?: ThemeMode.LIGHT.name)
             } catch (e: Exception) {
-                ThemeMode.SYSTEM
+                ThemeMode.LIGHT
             },
             isAppLockEnabled = prefs.getBoolean("pref_app_lock", false),
             isBiometricEnabled = prefs.getBoolean("pref_biometric", false)

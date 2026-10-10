@@ -55,6 +55,31 @@ class VaultRepository(
         list.map { it.toDomain() }
     }
 
+    val allFolders: Flow<List<com.vaultia.app.data.local.entity.FolderEntity>> = database.folderDao().getAllFolders()
+
+    fun getFilesByFolder(folderId: String): Flow<List<VaultFile>> {
+        return database.fileDao().getFilesByFolder(folderId).map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    suspend fun createFolder(name: String, colorHex: String = "#8B5CF6") {
+        val folder = com.vaultia.app.data.local.entity.FolderEntity(
+            id = UUID.randomUUID().toString(),
+            name = name,
+            colorHex = colorHex
+        )
+        database.folderDao().insertFolder(folder)
+    }
+
+    suspend fun deleteFolder(folderId: String) {
+        database.folderDao().deleteFolder(folderId)
+    }
+
+    suspend fun moveFileToFolder(fileId: String, folderId: String?) {
+        database.fileDao().updateFileFolder(fileId, folderId)
+    }
+
     fun getFilesByMediaType(type: MediaType): Flow<List<VaultFile>> {
         return if (type == MediaType.ALL) {
             allFiles
@@ -227,5 +252,9 @@ class VaultRepository(
 
     fun getStreamUrl(fileId: String): String {
         return streamingServer.getStreamUrl(fileId)
+    }
+
+    fun prewarmMedia(vaultFile: VaultFile) {
+        streamingServer.prewarmMedia(vaultFile)
     }
 }

@@ -14,6 +14,9 @@ interface FileDao {
     @Query("SELECT * FROM files ORDER BY createdAt DESC")
     fun getAllFiles(): Flow<List<FileEntity>>
 
+    @Query("SELECT * FROM files ORDER BY createdAt DESC")
+    suspend fun getAllFilesList(): List<FileEntity>
+
     @Query("SELECT * FROM files WHERE mediaType = :mediaType ORDER BY createdAt DESC")
     fun getFilesByMediaType(mediaType: String): Flow<List<FileEntity>>
 
@@ -49,6 +52,12 @@ interface FileDao {
 
     @Query("UPDATE files SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun setFavorite(id: String, isFavorite: Boolean)
+
+    @Query("SELECT * FROM files WHERE folderId = :folderId ORDER BY createdAt DESC")
+    fun getFilesByFolder(folderId: String): Flow<List<FileEntity>>
+
+    @Query("UPDATE files SET folderId = :folderId WHERE id = :fileId")
+    suspend fun updateFileFolder(fileId: String, folderId: String?)
 
     @Query("DELETE FROM files WHERE id = :id")
     suspend fun deleteFile(id: String)

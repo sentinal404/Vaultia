@@ -23,17 +23,23 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("${rootDir}/vaultia-release.jks")
-            storePassword = "vaultia123"
-            keyAlias = "vaultia"
-            keyPassword = "vaultia123"
+            val jksFile = file("${rootDir}/vaultia-release.jks")
+            if (jksFile.exists()) {
+                storeFile = jksFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "vaultia123"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "vaultia"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "vaultia123"
+            }
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null && releaseSigning.storeFile!!.exists()) {
+                signingConfig = releaseSigning
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -124,6 +130,10 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
+    // Official TDLib MTProto Native Android Engine
+    implementation("io.github.tdlib-android:core:0.1.1")
+    implementation("io.github.tdlib-android:ktx:0.1.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

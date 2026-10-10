@@ -51,6 +51,7 @@ import com.vaultia.app.core.theme.StatusError
 import com.vaultia.app.core.theme.StatusSuccess
 import com.vaultia.app.ui.components.ClayButton
 import com.vaultia.app.ui.components.ClayCard
+import com.vaultia.app.ui.components.VaultiaBrandLogo
 import com.vaultia.app.ui.viewmodel.VaultViewModel
 
 @Composable
@@ -75,19 +76,7 @@ fun OnboardingScreen(
     ) {
         Spacer(modifier = Modifier.height(36.dp))
 
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .background(ClayPrimary.copy(alpha = 0.15f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.CloudDone,
-                contentDescription = null,
-                tint = ClayPrimary,
-                modifier = Modifier.size(38.dp)
-            )
-        }
+        VaultiaBrandLogo(size = 80.dp)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -239,6 +228,7 @@ fun OnboardingScreen(
             onClick = {
                 viewModel.validateAndConnect(botToken, channelId) { success ->
                     if (success) {
+                        viewModel.triggerCloudSync()
                         onSetupComplete()
                     }
                 }

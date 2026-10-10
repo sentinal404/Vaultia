@@ -14,12 +14,24 @@ data class VideoPlayerState(
     val currentPositionMs: Long = 0L,
     val bufferedPositionMs: Long = 0L,
     val playbackSpeed: Float = 1.0f,
-    val isBuffering: Boolean = false
+    val isBuffering: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class VideoPlayerManager(private val context: Context) {
 
-    val player: ExoPlayer = ExoPlayer.Builder(context).build()
+    private val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
+        .setBufferDurationsMs(
+            2500,  // minBufferMs (>= bufferForPlaybackAfterRebufferMs)
+            30000, // maxBufferMs
+            500,   // bufferForPlaybackMs - starts video immediately!
+            1000   // bufferForPlaybackAfterRebufferMs
+        )
+        .build()
+
+    val player: ExoPlayer = ExoPlayer.Builder(context)
+        .setLoadControl(loadControl)
+        .build()
 
     private val _playerState = MutableStateFlow(VideoPlayerState())
     val playerState: StateFlow<VideoPlayerState> = _playerState.asStateFlow()
@@ -36,10 +48,19 @@ class VideoPlayerManager(private val context: Context) {
                 )
                 updateState()
             }
+
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                android.util.Log.e("VideoPlayerManager", "ExoPlayer error: ${error.message}", error)
+                _playerState.value = _playerState.value.copy(
+                    isBuffering = false,
+                    errorMessage = error.localizedMessage ?: "Playback error"
+                )
+            }
         })
     }
 
     fun prepareStream(streamUrl: String) {
+        _playerState.value = _playerState.value.copy(errorMessage = null)
         val mediaItem = MediaItem.fromUri(streamUrl)
         player.setMediaItem(mediaItem)
         player.prepare()

@@ -27,20 +27,25 @@ class TelegramApiService(
     private val gson: Gson = Gson()
 ) {
 
+    var customBaseUrl: String? = null
+
+    val baseUrl: String
+        get() = customBaseUrl?.trim()?.removeSuffix("/")?.takeIf { it.isNotBlank() } ?: Constants.TELEGRAM_API_BASE_URL
+
     suspend fun getMe(token: String): VaultResult<UserDto> = withContext(Dispatchers.IO) {
-        val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/getMe"
+        val url = "$baseUrl/bot$token/getMe"
         executeGet(url, object : TypeToken<TelegramApiResponse<UserDto>>() {}.type)
     }
 
     suspend fun getChat(token: String, chatId: String): VaultResult<ChatDto> = withContext(Dispatchers.IO) {
         val formattedChatId = formatChatId(chatId)
-        val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/getChat?chat_id=$formattedChatId"
+        val url = "$baseUrl/bot$token/getChat?chat_id=$formattedChatId"
         executeGet(url, object : TypeToken<TelegramApiResponse<ChatDto>>() {}.type)
     }
 
     suspend fun getChatMember(token: String, chatId: String, userId: Long): VaultResult<ChatMemberDto> = withContext(Dispatchers.IO) {
         val formattedChatId = formatChatId(chatId)
-        val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/getChatMember?chat_id=$formattedChatId&user_id=$userId"
+        val url = "$baseUrl/bot$token/getChatMember?chat_id=$formattedChatId&user_id=$userId"
         executeGet(url, object : TypeToken<TelegramApiResponse<ChatMemberDto>>() {}.type)
     }
 
@@ -54,7 +59,7 @@ class TelegramApiService(
     ): VaultResult<MessageDto> = withContext(Dispatchers.IO) {
         try {
             val formattedChatId = formatChatId(chatId)
-            val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/sendDocument"
+            val url = "$baseUrl/bot$token/sendDocument"
 
             val fileRequestBody = CountingRequestBody(
                 requestBody = RequestBody.create("application/octet-stream".toMediaTypeOrNull(), chunkFile),
@@ -92,7 +97,8 @@ class TelegramApiService(
     }
 
     suspend fun getFile(token: String, fileId: String): VaultResult<FileDto> = withContext(Dispatchers.IO) {
-        val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/getFile?file_id=$fileId"
+        val encodedFileId = java.net.URLEncoder.encode(fileId, "UTF-8")
+        val url = "$baseUrl/bot$token/getFile?file_id=$encodedFileId"
         executeGet(url, object : TypeToken<TelegramApiResponse<FileDto>>() {}.type)
     }
 
@@ -103,7 +109,7 @@ class TelegramApiService(
         onProgress: ((downloadedBytes: Long, totalBytes: Long) -> Unit)? = null
     ): VaultResult<Long> = withContext(Dispatchers.IO) {
         try {
-            val url = "${Constants.TELEGRAM_API_BASE_URL}/file/bot$token/$filePath"
+            val url = "$baseUrl/file/bot$token/$filePath"
             val request = Request.Builder().url(url).build()
 
             client.newCall(request).execute().use { response ->
@@ -133,8 +139,78 @@ class TelegramApiService(
 
     suspend fun deleteMessage(token: String, chatId: String, messageId: Long): VaultResult<Boolean> = withContext(Dispatchers.IO) {
         val formattedChatId = formatChatId(chatId)
-        val url = "${Constants.TELEGRAM_API_BASE_URL}/bot$token/deleteMessage?chat_id=$formattedChatId&message_id=$messageId"
+        val url = "$baseUrl/bot$token/deleteMessage?chat_id=$formattedChatId&message_id=$messageId"
         executeGet(url, object : TypeToken<TelegramApiResponse<Boolean>>() {}.type)
+    }
+
+    suspend fun getUpdates(token: String, offset: Long? = null, limit: Int = 100, timeout: Int = 20): VaultResult<List<UpdateDto>> = withContext(Dispatchers.IO) {
+        val offsetParam = if (offset != null) "&offset=$offset" else ""
+        val url = "$baseUrl/bot$token/getUpdates?timeout=$timeout&limit=$limit$offsetParam"
+        executeGet(url, object : TypeToken<TelegramApiResponse<List<UpdateDto>>>() {}.type)
+    }
+
+    suspend fun copyMessage(
+        token: String,
+        chatId: String,
+        fromChatId: Long,
+        messageId: Long,
+        caption: String? = null
+    ): VaultResult<MessageIdDto> = withContext(Dispatchers.IO) {
+        val formattedChatId = formatChatId(chatId)
+        val captionParam = if (caption != null) "&caption=" + java.net.URLEncoder.encode(caption, "UTF-8") else ""
+        val url = "$baseUrl/bot$token/copyMessage?chat_id=$formattedChatId&from_chat_id=$fromChatId&message_id=$messageId$captionParam"
+        executeGet(url, object : TypeToken<TelegramApiResponse<MessageIdDto>>() {}.type)
+    }
+
+    suspend fun sendMessage(token: String, chatId: Long, text: String): VaultResult<MessageDto> = withContext(Dispatchers.IO) {
+        val encodedText = java.net.URLEncoder.encode(text, "UTF-8")
+        val url = "$baseUrl/bot$token/sendMessage?chat_id=$chatId&text=$encodedText"
+        executeGet(url, object : TypeToken<TelegramApiResponse<MessageDto>>() {}.type)
+    }
+
+    suspend fun sendMessage(token: String, chatId: String, text: String): VaultResult<MessageDto> = withContext(Dispatchers.IO) {
+        val formattedChatId = formatChatId(chatId)
+        val encodedText = java.net.URLEncoder.encode(text, "UTF-8")
+        val url = "$baseUrl/bot$token/sendMessage?chat_id=$formattedChatId&text=$encodedText"
+        executeGet(url, object : TypeToken<TelegramApiResponse<MessageDto>>() {}.type)
+    }
+
+    suspend fun forwardMessage(
+        token: String,
+        chatId: String,
+        fromChatId: String,
+        messageId: Long
+    ): VaultResult<MessageDto> = withContext(Dispatchers.IO) {
+        val targetChatId = formatChatId(chatId)
+        val sourceChatId = formatChatId(fromChatId)
+        val url = "$baseUrl/bot$token/forwardMessage?chat_id=$targetChatId&from_chat_id=$sourceChatId&message_id=$messageId"
+        executeGet(url, object : TypeToken<TelegramApiResponse<MessageDto>>() {}.type)
+    }
+
+    suspend fun pinChatMessage(
+        token: String,
+        chatId: String,
+        messageId: Long,
+        disableNotification: Boolean = true
+    ): VaultResult<Boolean> = withContext(Dispatchers.IO) {
+        val formattedChatId = formatChatId(chatId)
+        val url = "$baseUrl/bot$token/pinChatMessage?chat_id=$formattedChatId&message_id=$messageId&disable_notification=$disableNotification"
+        executeGet(url, object : TypeToken<TelegramApiResponse<Boolean>>() {}.type)
+    }
+
+    suspend fun unpinChatMessage(
+        token: String,
+        chatId: String,
+        messageId: Long
+    ): VaultResult<Boolean> = withContext(Dispatchers.IO) {
+        val formattedChatId = formatChatId(chatId)
+        val url = "$baseUrl/bot$token/unpinChatMessage?chat_id=$formattedChatId&message_id=$messageId"
+        executeGet(url, object : TypeToken<TelegramApiResponse<Boolean>>() {}.type)
+    }
+
+    suspend fun getUserProfilePhotos(token: String, userId: Long): VaultResult<UserProfilePhotosDto> = withContext(Dispatchers.IO) {
+        val url = "$baseUrl/bot$token/getUserProfilePhotos?user_id=$userId&limit=1"
+        executeGet(url, object : TypeToken<TelegramApiResponse<UserProfilePhotosDto>>() {}.type)
     }
 
     private fun <T> executeGet(url: String, type: java.lang.reflect.Type): VaultResult<T> {
@@ -149,10 +225,12 @@ class TelegramApiService(
                 } else {
                     val code = apiResponse.errorCode ?: response.code
                     val desc = apiResponse.description ?: "Telegram API request failed"
+                    android.util.Log.e("TelegramApiService", "Telegram API error for url $url: code=$code, desc=$desc")
                     VaultResult.Error(desc, code = code)
                 }
             }
         } catch (e: Exception) {
+            android.util.Log.e("TelegramApiService", "Network failure for url $url: ${e.message}", e)
             VaultResult.Error("Network failure: ${e.message}", e)
         }
     }

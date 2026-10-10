@@ -48,18 +48,12 @@ fun TransfersScreen(
                 title = "Transfers",
                 subtitle = "${transfers.size} total tasks",
                 actions = {
-                    if (transfers.any { it.status.isFinished }) {
+                    if (transfers.any { it.status.isFinished || it.status == com.vaultia.app.domain.model.TransferStatus.FAILED || it.status == com.vaultia.app.domain.model.TransferStatus.CANCELLED }) {
                         IconButton(onClick = { transferViewModel.clearCompleted() }) {
-                            Icon(Icons.Default.DeleteSweep, contentDescription = "Clear finished")
+                            Icon(Icons.Default.DeleteSweep, contentDescription = "Clear finished & stuck tasks")
                         }
                     }
                 }
-            )
-        },
-        bottomBar = {
-            VaultiaBottomNav(
-                currentRoute = "transfers",
-                onNavigate = onNavigateTab
             )
         }
     ) { paddingValues ->
@@ -79,11 +73,9 @@ fun TransfersScreen(
                             .padding(vertical = 32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            Icons.Default.SyncAlt,
-                            contentDescription = null,
-                            tint = ClayPrimary.copy(alpha = 0.4f),
-                            modifier = Modifier.size(52.dp)
+                        com.vaultia.app.ui.components.Vaultia3DIcon(
+                            type = com.vaultia.app.ui.components.VaultiaIconType.TRANSFERS,
+                            size = 56.dp
                         )
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(

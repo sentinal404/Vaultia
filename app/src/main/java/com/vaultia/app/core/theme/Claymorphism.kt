@@ -26,8 +26,9 @@ fun Modifier.claymorphic(
     surfaceColor: Color? = null,
     isPressed: Boolean = false
 ): Modifier {
-    val isDark = isSystemInDarkTheme()
-    val baseSurface = surfaceColor ?: if (isDark) ClayCardDark else ClayCardLight
+    val themeSurface = androidx.compose.material3.MaterialTheme.colorScheme.surface
+    val baseSurface = surfaceColor ?: themeSurface
+    val isDark = androidx.compose.material3.MaterialTheme.colorScheme.background == ObsidianBgMain
     val shadowDark = if (isDark) ClayShadowDarkDark else ClayShadowDarkLight
     val highlight = if (isDark) ClayShadowLightDark else ClayShadowLightLight
 

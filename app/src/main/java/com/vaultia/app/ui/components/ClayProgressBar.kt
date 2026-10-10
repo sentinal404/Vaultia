@@ -21,20 +21,21 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.vaultia.app.core.theme.ClayPrimary
-import com.vaultia.app.core.theme.ClaySecondary
+import com.vaultia.app.core.theme.VioletDuskPeach
+import com.vaultia.app.core.theme.VioletDuskPlum
+import com.vaultia.app.core.theme.VioletDuskRose
 
 @Composable
 fun ClayProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
-    height: Dp = 10.dp,
-    trackColor: Color = Color(0xFF1E293B).copy(alpha = 0.15f),
+    height: Dp = 8.dp,
+    trackColor: Color = Color(0xFF281435).copy(alpha = 0.5f),
     gradientBrush: Brush = Brush.horizontalGradient(
         listOf(
-            ClayPrimary,
-            ClaySecondary,
-            Color(0xFF38BDF8)
+            VioletDuskPlum,
+            VioletDuskRose,
+            VioletDuskPeach
         )
     )
 ) {

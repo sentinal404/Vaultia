@@ -10,10 +10,12 @@ import com.vaultia.app.data.local.dao.ChunkDao
 import com.vaultia.app.data.local.dao.FileDao
 import com.vaultia.app.data.local.dao.TransferDao
 import com.vaultia.app.data.local.dao.WorkerDao
+import com.vaultia.app.data.local.dao.FolderDao
 import com.vaultia.app.data.local.entity.BackupFolderEntity
 import com.vaultia.app.data.local.entity.BackupRecordEntity
 import com.vaultia.app.data.local.entity.ChunkEntity
 import com.vaultia.app.data.local.entity.FileEntity
+import com.vaultia.app.data.local.entity.FolderEntity
 import com.vaultia.app.data.local.entity.TransferEntity
 import com.vaultia.app.data.local.entity.WorkerEntity
 
@@ -24,9 +26,10 @@ import com.vaultia.app.data.local.entity.WorkerEntity
         TransferEntity::class,
         WorkerEntity::class,
         BackupFolderEntity::class,
-        BackupRecordEntity::class
+        BackupRecordEntity::class,
+        FolderEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class VaultiaDatabase : RoomDatabase() {
@@ -36,6 +39,7 @@ abstract class VaultiaDatabase : RoomDatabase() {
     abstract fun transferDao(): TransferDao
     abstract fun workerDao(): WorkerDao
     abstract fun backupDao(): BackupDao
+    abstract fun folderDao(): FolderDao
 
     companion object {
         @Volatile

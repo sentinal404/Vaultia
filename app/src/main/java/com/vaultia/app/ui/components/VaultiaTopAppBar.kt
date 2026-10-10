@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vaultia.app.core.theme.VioletDuskCream
+import com.vaultia.app.core.theme.VioletDuskPeach
 
 @Composable
 fun VaultiaTopAppBar(
@@ -57,7 +59,7 @@ fun VaultiaTopAppBar(
                     Text(
                         text = subtitle,
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

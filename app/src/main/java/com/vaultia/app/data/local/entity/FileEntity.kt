@@ -30,7 +30,8 @@ data class FileEntity(
     val isFavorite: Boolean = false,
     val isPinned: Boolean = false,
     val remoteRootMessageId: Long? = null,
-    val localUri: String? = null
+    val localUri: String? = null,
+    val folderId: String? = null
 ) {
     fun toDomain(): VaultFile {
         val type = try {
@@ -52,7 +53,8 @@ data class FileEntity(
             isFavorite = isFavorite,
             isPinned = isPinned,
             remoteRootMessageId = remoteRootMessageId,
-            localUri = localUri
+            localUri = localUri,
+            folderId = folderId
         )
     }
 
@@ -72,7 +74,8 @@ data class FileEntity(
                 isFavorite = file.isFavorite,
                 isPinned = file.isPinned,
                 remoteRootMessageId = file.remoteRootMessageId,
-                localUri = file.localUri
+                localUri = file.localUri,
+                folderId = file.folderId
             )
         }
     }

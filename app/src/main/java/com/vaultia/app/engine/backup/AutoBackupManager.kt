@@ -224,7 +224,8 @@ class AutoBackupManager(
 
                     // New file detected -> copy to temp cache and enqueue upload to Telegram vault
                     try {
-                        val tempFile = File(context.cacheDir, "backup_${System.currentTimeMillis()}_$fileName")
+                        val tempFolder = File(context.cacheDir, "vaultia_sync_${UUID.randomUUID()}").apply { mkdirs() }
+                        val tempFile = File(tempFolder, fileName)
                         context.contentResolver.openInputStream(doc.uri)?.use { input ->
                             FileOutputStream(tempFile).use { out ->
                                 input.copyTo(out)
@@ -232,7 +233,7 @@ class AutoBackupManager(
                         }
 
                         if (tempFile.exists() && tempFile.length() > 0) {
-                            uploadManager.enqueueUpload(tempFile)
+                            uploadManager.enqueueUpload(tempFile, customFileName = fileName)
 
                             val record = BackupRecordEntity(
                                 id = UUID.randomUUID().toString(),

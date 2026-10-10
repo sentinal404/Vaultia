@@ -16,7 +16,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 
-class VaultViewModel(private val repository: VaultRepository) : ViewModel() {
+class VaultViewModel(
+    private val repository: VaultRepository,
+    val cloudSyncManager: com.vaultia.app.engine.sync.CloudSyncManager? = null
+) : ViewModel() {
+
+    val syncState = cloudSyncManager?.syncState
+
+    fun triggerCloudSync(forceDeepScan: Boolean = false) {
+        cloudSyncManager?.performFullSync(forceDeepScan)
+    }
 
     val allFiles: StateFlow<List<VaultFile>> = repository.allFiles
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -32,6 +41,27 @@ class VaultViewModel(private val repository: VaultRepository) : ViewModel() {
 
     val workers: StateFlow<List<WorkerBot>> = repository.allWorkers
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val allFolders: StateFlow<List<com.vaultia.app.data.local.entity.FolderEntity>> = repository.allFolders
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun createFolder(name: String, colorHex: String = "#8B5CF6") {
+        viewModelScope.launch {
+            repository.createFolder(name, colorHex)
+        }
+    }
+
+    fun deleteFolder(folderId: String) {
+        viewModelScope.launch {
+            repository.deleteFolder(folderId)
+        }
+    }
+
+    fun moveFileToFolder(fileId: String, folderId: String?) {
+        viewModelScope.launch {
+            repository.moveFileToFolder(fileId, folderId)
+        }
+    }
 
     private val _selectedMediaType = MutableStateFlow(MediaType.ALL)
     val selectedMediaType: StateFlow<MediaType> = _selectedMediaType.asStateFlow()

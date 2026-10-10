@@ -85,6 +85,41 @@ class SettingsViewModel(
         _addWorkerResult.value = null
     }
 
+    fun saveTelegramApiCredentials(apiId: String?, apiHash: String?, customApiUrl: String?) {
+        repository.secureStorage.apiId = apiId?.trim()?.takeIf { it.isNotBlank() }
+        repository.secureStorage.apiHash = apiHash?.trim()?.takeIf { it.isNotBlank() }
+        repository.secureStorage.customApiUrl = customApiUrl?.trim()?.takeIf { it.isNotBlank() }
+        try {
+            com.vaultia.app.VaultiaApplication.instance.telegramApi.customBaseUrl = repository.secureStorage.customApiUrl
+        } catch (_: Exception) {}
+    }
+
+    val telegramClientStatus = com.vaultia.app.VaultiaApplication.instance.telegramClientManager.status
+
+    private val _isTestingMtproto = MutableStateFlow(false)
+    val isTestingMtproto: StateFlow<Boolean> = _isTestingMtproto.asStateFlow()
+
+    fun testMtprotoConnection() {
+        viewModelScope.launch {
+            _isTestingMtproto.value = true
+            try {
+                com.vaultia.app.VaultiaApplication.instance.telegramClientManager.verifyAndConnect()
+            } finally {
+                _isTestingMtproto.value = false
+            }
+        }
+    }
+
+    val bridgeState = com.vaultia.app.VaultiaApplication.instance.telegramBridgeManager.serverState
+
+    fun startBridgeServer(durationMinutes: Int = 10) {
+        com.vaultia.app.VaultiaApplication.instance.telegramBridgeManager.startServer(durationMinutes)
+    }
+
+    fun stopBridgeServer() {
+        com.vaultia.app.VaultiaApplication.instance.telegramBridgeManager.stopServer()
+    }
+
     fun deleteConfiguration(onComplete: () -> Unit) {
         viewModelScope.launch {
             repository.wipeAllConfiguration()

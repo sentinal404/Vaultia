@@ -24,18 +24,20 @@ class ChunkEngine(private val context: Context) {
 
     suspend fun analyzeFile(
         file: File,
-        chunkSize: Long = Constants.DEFAULT_CHUNK_SIZE_BYTES.toLong()
+        chunkSize: Long = Constants.DEFAULT_CHUNK_SIZE_BYTES.toLong(),
+        overrideFileName: String? = null
     ): Pair<VaultFile, List<FileChunk>> = withContext(Dispatchers.IO) {
         val fileId = UUID.randomUUID().toString()
         val totalSize = file.length()
         val totalChunks = if (totalSize == 0L) 1 else ((totalSize + chunkSize - 1) / chunkSize).toInt()
         val fileChecksum = calculateFileChecksum(file)
-        val mimeType = getMimeType(file.name)
-        val mediaType = MediaType.fromMimeType(mimeType, file.name)
+        val actualName = overrideFileName ?: file.name
+        val mimeType = getMimeType(actualName)
+        val mediaType = MediaType.fromMimeType(mimeType, actualName)
 
         val vaultFile = VaultFile(
             id = fileId,
-            name = file.name,
+            name = actualName,
             size = totalSize,
             mimeType = mimeType,
             mediaType = mediaType,

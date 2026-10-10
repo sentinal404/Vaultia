@@ -12,11 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
+import com.vaultia.app.engine.transfer.DownloadManager
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val repository: VaultRepository,
-    val playerManager: VideoPlayerManager
+    val playerManager: VideoPlayerManager,
+    private val downloadManager: DownloadManager
 ) : ViewModel() {
 
     val playerState: StateFlow<VideoPlayerState> = playerManager.playerState
@@ -24,12 +26,21 @@ class PlayerViewModel(
     private val _currentFile = MutableStateFlow<VaultFile?>(null)
     val currentFile: StateFlow<VaultFile?> = _currentFile.asStateFlow()
 
+    fun downloadCurrentFile(): Boolean {
+        val file = _currentFile.value ?: return false
+        downloadManager.enqueueDownload(file)
+        return true
+    }
+
     private var progressJob: Job? = null
 
     fun loadMedia(fileId: String) {
         viewModelScope.launch {
             val file = repository.getFileById(fileId)
             _currentFile.value = file
+            if (file != null) {
+                repository.prewarmMedia(file)
+            }
             val streamUrl = repository.getStreamUrl(fileId)
             playerManager.prepareStream(streamUrl)
             startProgressPolling()

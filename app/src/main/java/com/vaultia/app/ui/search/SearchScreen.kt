@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.vaultia.app.core.theme.ClayPrimary
 import com.vaultia.app.domain.model.VaultFile
 import com.vaultia.app.ui.components.VaultiaTopAppBar
-import com.vaultia.app.ui.dashboard.FileCardItem
+import com.vaultia.app.ui.components.FileCardItem
 import com.vaultia.app.ui.viewmodel.VaultViewModel
 
 @Composable

@@ -14,10 +14,14 @@ data class VaultFile(
     val isFavorite: Boolean = false,
     val isPinned: Boolean = false,
     val remoteRootMessageId: Long? = null,
-    val localUri: String? = null
+    val localUri: String? = null,
+    val folderId: String? = null
 ) {
     val formattedSize: String
         get() = formatBytes(size)
+
+    val extension: String
+        get() = name.substringAfterLast('.', "")
 
     companion object {
         fun formatBytes(bytes: Long): String {

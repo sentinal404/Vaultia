@@ -2,7 +2,7 @@ package com.vaultia.app.core
 
 object Constants {
     const val TELEGRAM_API_BASE_URL = "https://api.telegram.org"
-    const val DEFAULT_CHUNK_SIZE_BYTES = 20 * 1024 * 1024 // 20 MB (safe for Telegram Bot API 50MB limit)
+    const val DEFAULT_CHUNK_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB (ultra-fast zero-buffering chunk size)
     const val MIN_CHUNK_SIZE_BYTES = 5 * 1024 * 1024     // 5 MB
     const val MAX_CHUNK_SIZE_BYTES = 45 * 1024 * 1024    // 45 MB
     

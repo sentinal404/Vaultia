@@ -55,8 +55,9 @@ class DownloadManager(
         maxConcurrency: Int = Constants.DEFAULT_MAX_PARALLEL_WORKERS
     ): String {
         val transferId = "down_${System.currentTimeMillis()}_${vaultFile.name.hashCode()}"
-        val targetDir = destinationDir ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsBase = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             ?: context.filesDir
+        val targetDir = destinationDir ?: File(downloadsBase, "Vaultia").apply { if (!exists()) mkdirs() }
         val destinationFile = File(targetDir, vaultFile.name)
 
         val job = scope.launch {
@@ -184,13 +185,38 @@ class DownloadManager(
         val remoteFileId = chunk.remoteFileId
         if (remoteFileId.isNullOrBlank()) return
 
+        val candidateTokens = mutableListOf<String>()
+        if (!chunk.workerId.isNullOrBlank()) {
+            candidateTokens.add(chunk.workerId!!)
+        }
         val worker = workerScheduler.getAvailableWorker()
-        val token = worker?.token ?: secureStorage.botToken ?: return
+        worker?.token?.let { candidateTokens.add(it) }
+        secureStorage.botToken?.let { candidateTokens.add(it) }
+        val allWorkers = database.workerDao().getAllWorkersList().filter { it.isAuthorized }
+        candidateTokens.addAll(allWorkers.map { it.token })
+
+        val uniqueTokens = candidateTokens.distinct()
+        var validToken: String? = null
+        var validFilePath: String? = null
+
+        for (t in uniqueTokens) {
+            val res = telegramApi.getFile(t, remoteFileId)
+            val p = res.getOrNull()?.filePath
+            if (!p.isNullOrBlank()) {
+                validToken = t
+                validFilePath = p
+                break
+            }
+        }
+
+        if (validToken == null || validFilePath == null) {
+            workerScheduler.releaseWorker(worker?.id)
+            return
+        }
 
         try {
-            val fileDtoResult = telegramApi.getFile(token, remoteFileId)
-            val filePath = fileDtoResult.getOrNull()?.filePath ?: return
-
+            val token = validToken
+            val filePath = validFilePath
             val downloadResult = retryPolicy.executeWithRetry(
                 actionName = "Download chunk ${chunk.chunkIndex}",
                 isRateLimited = { err ->
@@ -237,20 +263,35 @@ class DownloadManager(
     fun pauseDownload(transferId: String) {
         pausedTasks.add(transferId)
         activeJobs[transferId]?.cancel()
+        activeJobs.remove(transferId)
         getCurrentTask(transferId)?.let {
             updateTransferState(it.copy(status = TransferStatus.PAUSED))
+        } ?: run {
+            scope.launch {
+                database.transferDao().updateStatus(transferId, TransferStatus.PAUSED.name)
+            }
         }
     }
 
-    fun resumeDownload(vaultFile: VaultFile, transferId: String) {
+    fun resumeDownload(vaultFile: VaultFile?, transferId: String) {
         pausedTasks.remove(transferId)
-        val job = scope.launch {
-            val targetDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        scope.launch {
+            val fileToDownload = vaultFile ?: run {
+                val task = getCurrentTask(transferId) ?: database.transferDao().getTransferById(transferId)?.toDomain()
+                val fid = task?.fileId ?: return@launch
+                database.fileDao().getFileById(fid)?.toDomain() ?: return@launch
+            }
+
+            val downloadsBase = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 ?: context.filesDir
-            val destinationFile = File(targetDir, vaultFile.name)
-            processDownload(transferId, vaultFile, destinationFile, Constants.DEFAULT_MAX_PARALLEL_WORKERS)
+            val targetDir = File(downloadsBase, "Vaultia").apply { if (!exists()) mkdirs() }
+            val destinationFile = File(targetDir, fileToDownload.name)
+
+            val job = scope.launch {
+                processDownload(transferId, fileToDownload, destinationFile, Constants.DEFAULT_MAX_PARALLEL_WORKERS)
+            }
+            activeJobs[transferId] = job
         }
-        activeJobs[transferId] = job
     }
 
     fun cancelDownload(transferId: String) {
@@ -259,6 +300,21 @@ class DownloadManager(
         activeJobs.remove(transferId)
         getCurrentTask(transferId)?.let {
             updateTransferState(it.copy(status = TransferStatus.CANCELLED))
+        }
+        scope.launch {
+            database.transferDao().updateStatus(transferId, TransferStatus.CANCELLED.name)
+        }
+    }
+
+    fun clearAllFinishedOrStuck() {
+        val updated = _liveTransfers.value.toMutableMap()
+        val toRemove = updated.filter {
+            it.value.status.isFinished || it.value.status == TransferStatus.FAILED || it.value.status == TransferStatus.CANCELLED
+        }.keys
+        toRemove.forEach { updated.remove(it) }
+        _liveTransfers.value = updated
+        scope.launch {
+            database.transferDao().clearCompletedTransfers()
         }
     }
 

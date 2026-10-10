@@ -2,39 +2,84 @@ package com.vaultia.app.core.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Claymorphic Theme Palette - 2026 Modern Soft UI
-val ClayPrimary = Color(0xFF6366F1)       // Indigo Accent
-val ClayPrimaryVariant = Color(0xFF4F46E5)
-val ClaySecondary = Color(0xFF06B6D4)     // Cyan Accent
-val ClayAccentPink = Color(0xFFEC4899)
-val ClayAccentEmerald = Color(0xFF10B981)
-val ClayAccentAmber = Color(0xFFF59E0B)
+// =========================================================================
+// PHASE 3 — EXTREMELY PREMIUM COLOR SYSTEM
+// =========================================================================
 
-// Light Clay Surface & Depth
-val ClayBgLight = Color(0xFFF1F5F9)       // Soft Slate 100
-val ClaySurfaceLight = Color(0xFFFFFFFF)
-val ClayCardLight = Color(0xFFF8FAFC)
-val ClayShadowDarkLight = Color(0xFFCBD5E1).copy(alpha = 0.6f)
+// A. Default Light Theme: PEARL TITANIUM LUXURY (Mandatory first-launch theme)
+val PearlBgMain = Color(0xFFF7F6F2)
+val PearlBgSecondary = Color(0xFFEFEEE9)
+val PearlSurfaceElevated = Color(0xFFFFFFFF)
+val PearlSurfaceTint = Color(0xFFF4F1FF)
+val PearlTextPrimary = Color(0xFF191A28)
+val PearlTextSecondary = Color(0xFF727487)
+val PearlPrimaryViolet = Color(0xFF6C4CE0)
+val PearlDeepViolet = Color(0xFF5031B8)
+val PearlElectricLavender = Color(0xFFB4A0FF)
+val PearlIceCyan = Color(0xFF43C9D9)
+val PearlSoftChampagne = Color(0xFFD5B77B)
+val PearlBorderSubtle = Color(0xFFE6E3DC)
+val PearlSuccessEmerald = Color(0xFF13896A)
+val PearlWarningAmber = Color(0xFFC38A32)
+val PearlErrorCrimson = Color(0xFFC74759)
+
+// B. Dark Theme: OBSIDIAN AURORA
+val ObsidianBgMain = Color(0xFF0B0D13)
+val ObsidianBgSecondary = Color(0xFF11141E)
+val ObsidianSurfaceElevated = Color(0xFF191D2A)
+val ObsidianSurfaceSecondary = Color(0xFF202437)
+val ObsidianTextPrimary = Color(0xFFF5F3FC)
+val ObsidianTextSecondary = Color(0xFFA5A9BC)
+val ObsidianPrimaryLavender = Color(0xFFA38AFF)
+val ObsidianElectricCyan = Color(0xFF53DCE8)
+val ObsidianVioletGlow = Color(0xFF7547FF)
+val ObsidianChampagneAccent = Color(0xFFD7B77A)
+val ObsidianBorder = Color(0xFF2B3042)
+val ObsidianSuccessEmerald = Color(0xFF3AC6A0)
+val ObsidianWarningAmber = Color(0xFFF59E0B)
+val ObsidianErrorCrimson = Color(0xFFF43F5E)
+
+// Legacy alias mappings for backwards compatibility across existing composables
+val VioletDuskPlum = PearlDeepViolet
+val VioletDuskRose = PearlPrimaryViolet
+val VioletDuskPeach = PearlSoftChampagne
+val VioletDuskCream = PearlBgMain
+val VioletDuskNeonPink = PearlElectricLavender
+val VioletDuskBg = ObsidianBgMain
+val VioletDuskSurface = ObsidianSurfaceElevated
+val VioletDuskCard = ObsidianSurfaceSecondary
+val VioletDuskCardElevated = Color(0xFF282D42)
+val VioletDuskBorder = ObsidianBorder
+
+val ClayPrimary = PearlPrimaryViolet
+val ClayPrimaryVariant = PearlDeepViolet
+val ClaySecondary = PearlIceCyan
+val ClayCyan = PearlIceCyan
+val ClayAccentPink = PearlElectricLavender
+val ClayAccentEmerald = PearlSuccessEmerald
+val ClayAccentAmber = PearlSoftChampagne
+
+val ClayBgLight = PearlBgMain
+val ClaySurfaceLight = PearlSurfaceElevated
+val ClayCardLight = PearlBgSecondary
+val ClayShadowDarkLight = Color(0xFFD8CFBE).copy(alpha = 0.5f)
 val ClayShadowLightLight = Color(0xFFFFFFFF)
 
-// Dark Clay Surface & Depth
-val ClayBgDark = Color(0xFF0F172A)        // Deep Slate 900
-val ClaySurfaceDark = Color(0xFF1E293B)   // Slate 800
-val ClayCardDark = Color(0xFF1E293B)
-val ClayShadowDarkDark = Color(0xFF020617).copy(alpha = 0.8f)
-val ClayShadowLightDark = Color(0xFF334155).copy(alpha = 0.4f)
+val ClayBgDark = ObsidianBgMain
+val ClaySurfaceDark = ObsidianSurfaceElevated
+val ClayCardDark = ObsidianSurfaceSecondary
+val ClayShadowDarkDark = Color(0xFF04060A).copy(alpha = 0.9f)
+val ClayShadowLightDark = ObsidianVioletGlow.copy(alpha = 0.25f)
 
-// Text Colors
-val TextPrimaryLight = Color(0xFF0F172A)
-val TextSecondaryLight = Color(0xFF64748B)
-val TextTertiaryLight = Color(0xFF94A3B8)
+val TextPrimaryLight = PearlTextPrimary
+val TextSecondaryLight = PearlTextSecondary
+val TextTertiaryLight = Color(0xFF9E9FAE)
 
-val TextPrimaryDark = Color(0xFFF8FAFC)
-val TextSecondaryDark = Color(0xFF94A3B8)
-val TextTertiaryDark = Color(0xFF64748B)
+val TextPrimaryDark = ObsidianTextPrimary
+val TextSecondaryDark = ObsidianTextSecondary
+val TextTertiaryDark = Color(0xFF7E8398)
 
-// Functional Colors
-val StatusSuccess = Color(0xFF10B981)
-val StatusWarning = Color(0xFFF59E0B)
-val StatusError = Color(0xFFEF4444)
-val StatusInfo = Color(0xFF3B82F6)
+val StatusSuccess = PearlSuccessEmerald
+val StatusWarning = PearlWarningAmber
+val StatusError = PearlErrorCrimson
+val StatusInfo = PearlIceCyan
