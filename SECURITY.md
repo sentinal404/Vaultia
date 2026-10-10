@@ -37,7 +37,7 @@ Please report the following categories exclusively through **GitHub Private Vuln
 1. Navigate to the repository's **[Security Advisories](https://github.com/sentinal404/Vaultia/security/advisories/new)** tab.
 2. Click **"Report a vulnerability"** to open a confidential report.
 3. Provide a clear description, proof of concept (PoC) or reproduction steps, and the affected version/environment.
-4. If GitHub Private Reporting is temporarily unavailable, you may contact the maintainer directly at: `sentinal404@users.noreply.github.com` with the subject line `[SECURITY] Vaultia Vulnerability Report`.
+4. For urgent coordination, you can connect directly with the maintainer via **[LinkedIn](https://www.linkedin.com/in/rishishakya)** or **[GitHub Profile](https://github.com/sentinal404)**.
 
 ---
 
