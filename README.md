@@ -13,13 +13,14 @@
 [![Protocol](https://img.shields.io/badge/Engine-Telegram_MTProto-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://core.telegram.org/mtproto)
 [![License](https://img.shields.io/badge/License-Apache_2.0-F59E0B?style=for-the-badge)](LICENSE)
 [![Vibe Coding](https://img.shields.io/badge/Crafted_With-Vibe_Coding-FF4081?style=for-the-badge&logo=sparkles&logoColor=white)](#-vibe-coding-origin)
+[![LinkedIn](https://img.shields.io/badge/Connect-LinkedIn_rishishakya-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rishishakya)
 
 <p align="center">
   <b>Turn your private Telegram channels into an infinite, zero-cost personal cloud drive.</b><br>
   Instant zero-buffering 4K video playback via direct MTProto binary chunk streaming, multi-worker parallel uploads, hardware AES-256 client-side encryption, and auto folder synchronization wrapped in a 2026 Tactile Claymorphism UI.
 </p>
 
-[Key Features](#-key-features) • [Screenshots](#-interface-gallery) • [Architecture](#-architecture--how-it-works) • [Android Studio Setup](#-android-studio-import--developer-setup) • [Security & Privacy](#-security--privacy-first) • [Releases](#-releases--download)
+[Key Features](#-key-features) • [Screenshots](#-interface-gallery) • [Architecture](#-architecture--how-it-works) • [Android Studio Setup](#-android-studio-import--developer-setup) • [Security & Privacy](#-security--privacy-first) • [Releases](#-releases--download) • [Connect on LinkedIn](https://www.linkedin.com/in/rishishakya)
 
 </div>
 
@@ -235,11 +236,22 @@ Download the official production APK from GitHub Releases:
 
 ---
 
-## 💖 Vibe Coding Origin
+## 💖 Crafted with Vibe Coding
 
 Vaultia was designed and developed with pure **Vibe Coding** — an iterative, human-in-the-loop pair-programming methodology combining creative product vision with autonomous agentic intelligence.
 
-From the claymorphic geometry down to the low-level MTProto HTTP range-chunk streaming logic, Vaultia is proof of what high-velocity vibe coding can achieve.
+- **100% Fully Working & Production Verified**: Real-world tested on physical Android devices (Android 8.0 through 14) with multi-gigabyte 4K video playback, biometric security, and multi-worker Telegram bot concurrency.
+- **Hardware Encryption & Native C++ TDLib**: Seamlessly integrates native `libtdjni.so` binary MTProto pipelines with hardware-backed Android KeyStore AES-256-GCM.
+
+---
+
+## 🌟 Support & Connect
+
+If you love the concept of infinite zero-cost personal cloud storage:
+
+- ⭐ **Star this Repository!** Give Vaultia a GitHub star to support independent open-source tools.
+- 🤝 **Connect with me on LinkedIn**: [**Rishi Shakya**](https://www.linkedin.com/in/rishishakya) (Let's connect & discuss vibe coding and Android architectures!)
+- 🐛 **Found a Vulnerability?**: Report it privately via [SECURITY.md](SECURITY.md).
 
 ---
 
@@ -250,6 +262,6 @@ This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE
 ---
 
 <div align="center">
-  <b>Vaultia</b> — Created with ❤️ by <a href="https://github.com/sentinal404">Rishi Shakya</a><br>
+  <b>Vaultia</b> — Created with ❤️ by <a href="https://github.com/sentinal404">Rishi Shakya</a> • <a href="https://www.linkedin.com/in/rishishakya">LinkedIn</a><br>
   <i>Your cloud. Your rules. Infinite storage.</i>
 </div>
