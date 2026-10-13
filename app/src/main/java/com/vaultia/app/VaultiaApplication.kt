@@ -192,27 +192,32 @@ class VaultiaApplication : Application() {
             chunkEngine = chunkEngine
         )
 
-        // Clean old streaming cache and temp files to ensure device storage is never filled
+        // Clean streaming cache and temp files to ensure device storage is never filled
+        purgeStreamingCache()
+    }
+
+    fun purgeStreamingCache() {
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
             try {
                 val streamCacheDir = java.io.File(cacheDir, "vaultia_stream_cache")
                 if (streamCacheDir.exists()) {
                     streamCacheDir.listFiles()?.forEach { file ->
-                        if (System.currentTimeMillis() - file.lastModified() > 6 * 3600 * 1000L) {
-                            file.delete()
-                        }
+                        file.delete()
                     }
                 }
                 val tdlibFilesDir = java.io.File(cacheDir, "tdlib_files")
                 if (tdlibFilesDir.exists()) {
                     tdlibFilesDir.listFiles()?.forEach { file ->
-                        if (System.currentTimeMillis() - file.lastModified() > 6 * 3600 * 1000L) {
-                            file.delete()
-                        }
+                        file.delete()
                     }
                 }
             } catch (_: Exception) {}
         }
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        purgeStreamingCache()
     }
 
     private fun createNotificationChannels() {
@@ -241,6 +246,7 @@ class VaultiaApplication : Application() {
 
     override fun onTerminate() {
         super.onTerminate()
+        purgeStreamingCache()
         streamingServer.stop()
         videoPlayerManager.release()
     }

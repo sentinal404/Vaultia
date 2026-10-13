@@ -7,6 +7,7 @@
   <img src="app/src/main/res/drawable/vaultia_logo.png" alt="Vaultia Logo" width="128" height="128" style="border-radius: 28px;" />
 </p>
 
+[![Version](https://img.shields.io/badge/Version-v2.0.0_Evolution-00E5FF?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sentinal404/Vaultia/releases/tag/v2.0.0)
 [![Platform](https://img.shields.io/badge/Platform-Android_8.0+_(API_26+)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.24-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
@@ -232,7 +233,8 @@ Download the official production APK from GitHub Releases:
 
 | Release Asset | Description | Size |
 | :--- | :--- | :---: |
-| `vaultia-v1.0.0-release.apk` | **Vaultia v1.0.0 Production**: Complete release featuring direct TDLib MTProto engine for 2GB zero-buffering 4K streaming, multi-worker parallel chunk uploading, auto folder sync, and claymorphic UI | ~105 MB |
+| `vaultia-v2.0.0-release.apk` | **Vaultia v2.0.0 (Evolution Edition)**: Complete 2026 UI redesign, curved floating bottom nav, 5 dynamic auto-theming audio players (including Arch Arc Scrubber), true immersive fullscreen 4K video player, multi-select cloud batch actions, 3D glassmorphic folders, and native TDLib MTProto engine | ~105 MB |
+| `vaultia-v1.0.0-release.apk` | **Vaultia v1.0.0 Production**: Initial stable release featuring direct TDLib MTProto engine for 2GB zero-buffering 4K streaming and claymorphic UI | ~105 MB |
 
 ---
 

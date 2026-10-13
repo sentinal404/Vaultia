@@ -80,15 +80,30 @@ fun OnboardingScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Box(
+            modifier = Modifier
+                .background(ClayPrimary.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
+                .padding(horizontal = 10.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = "Vaultia v2.0.0 Storage Engine",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = ClayPrimary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         Text(
-            text = "Welcome to Vaultia",
+            text = "Connect Private Cloud",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
-            text = "Your private cloud storage powered by Telegram",
+            text = "Your private cloud storage powered by Telegram MTProto",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )

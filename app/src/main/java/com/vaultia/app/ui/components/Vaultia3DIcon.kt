@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
@@ -52,7 +53,7 @@ fun Vaultia3DIcon(
     size: Dp = 48.dp,
     glyphSize: Dp = (size.value * 0.52f).dp
 ) {
-    val (primaryBrush, rimColor, iconVector, iconTint) = when (type) {
+    val (primaryBrush, _, iconVector, iconTint) = when (type) {
         VaultiaIconType.VAULT -> Quad(
             Brush.linearGradient(listOf(Color(0xFF6C4CE0), Color(0xFF43C9D9))),
             Color(0xFFB4A0FF).copy(alpha = 0.6f),
@@ -115,20 +116,17 @@ fun Vaultia3DIcon(
         )
     }
 
-    val cornerRadius = (size.value * 0.32f).dp
-
     Box(
         modifier = modifier
             .size(size)
             .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(cornerRadius),
+                elevation = 4.dp,
+                shape = CircleShape,
                 ambientColor = Color.Black.copy(alpha = 0.2f),
                 spotColor = Color.Black.copy(alpha = 0.25f)
             )
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(primaryBrush)
-            .border(1.2.dp, rimColor, RoundedCornerShape(cornerRadius)),
+            .clip(CircleShape)
+            .background(primaryBrush),
         contentAlignment = Alignment.Center
     ) {
         Icon(

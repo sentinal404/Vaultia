@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +75,7 @@ import com.vaultia.app.engine.backup.AutoBackupManager
 import com.vaultia.app.ui.components.ClayButton
 import com.vaultia.app.ui.components.ClayCard
 import com.vaultia.app.ui.components.ClayProgressBar
+import com.vaultia.app.ui.components.VaultiaSwitch
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -141,7 +144,15 @@ fun AutoBackupScreen(
                 ClayCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    val next = !isEnabled
+                                    isEnabled = next
+                                    autoBackupManager.isEnabled = next
+                                }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -174,16 +185,12 @@ fun AutoBackupScreen(
                                 }
                             }
 
-                            Switch(
+                            VaultiaSwitch(
                                 checked = isEnabled,
                                 onCheckedChange = {
                                     isEnabled = it
                                     autoBackupManager.isEnabled = it
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = ClayPrimary
-                                )
+                                }
                             )
                         }
 
@@ -339,7 +346,15 @@ fun AutoBackupScreen(
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    val next = !wifiOnly
+                                    wifiOnly = next
+                                    autoBackupManager.isWifiOnly = next
+                                }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -347,7 +362,7 @@ fun AutoBackupScreen(
                                 Text("Wi-Fi Only", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                 Text("Avoid cellular data consumption", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                             }
-                            Switch(
+                            VaultiaSwitch(
                                 checked = wifiOnly,
                                 onCheckedChange = {
                                     wifiOnly = it
@@ -359,7 +374,15 @@ fun AutoBackupScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    val next = !chargingOnly
+                                    chargingOnly = next
+                                    autoBackupManager.isChargingOnly = next
+                                }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -367,7 +390,7 @@ fun AutoBackupScreen(
                                 Text("When Idle & Charging", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                 Text("Run when phone is idle on charger (preserves battery)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                             }
-                            Switch(
+                            VaultiaSwitch(
                                 checked = chargingOnly,
                                 onCheckedChange = {
                                     chargingOnly = it

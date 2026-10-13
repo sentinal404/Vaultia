@@ -6,4 +6,6 @@
     <color name="surface_light">#FFFFFF</color>
     <color name="background_dark">#0F172A</color>
     <color name="surface_dark">#1E293B</color>
+    <color name="vaultia_dark_bg">#07040B</color>
+    <color name="vaultia_splash_bg">#07040B</color>
 </resources>

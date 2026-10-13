@@ -6,7 +6,6 @@ import android.media.AudioManager
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
-import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,14 +25,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.BrightnessHigh
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -41,13 +48,17 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -84,7 +95,8 @@ import com.vaultia.app.ui.components.ClayProgressBar
 import com.vaultia.app.ui.viewmodel.PlayerViewModel
 import kotlinx.coroutines.delay
 
-@OptIn(UnstableApi::class)
+@androidx.annotation.OptIn(UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoPlayerScreen(
     fileId: String,
@@ -97,10 +109,12 @@ fun VideoPlayerScreen(
 
     val currentFile by viewModel.currentFile.collectAsState()
     val playerState by viewModel.playerState.collectAsState()
+    val playlist by viewModel.playlist.collectAsState()
 
     var showControls by remember { mutableStateOf(true) }
     var isScreenLocked by remember { mutableStateOf(false) }
     var showLockPill by remember { mutableStateOf(false) }
+    var showQueueSheet by remember { mutableStateOf(false) }
 
     var showRewindIndicator by remember { mutableStateOf(false) }
     var showForwardIndicator by remember { mutableStateOf(false) }
@@ -118,6 +132,63 @@ fun VideoPlayerScreen(
     var isFitMode by remember { mutableStateOf(true) }
 
     val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
+
+    val window = activity?.window
+    val configuration = LocalConfiguration.current
+    val orientation = configuration.orientation
+
+    // Function to enforce complete sticky immersive fullscreen across all Android OS versions
+    fun enforceTrueFullscreen() {
+        if (window == null) return
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+        insetsController.systemBarsBehavior =
+            androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility = (
+            android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            or android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            or android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+        )
+    }
+
+    // Re-enforce sticky immersive fullscreen whenever orientation changes, or on screen entry
+    DisposableEffect(orientation) {
+        enforceTrueFullscreen()
+        @Suppress("DEPRECATION")
+        val listener = android.view.View.OnSystemUiVisibilityChangeListener { visibility ->
+            if ((visibility and android.view.View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                enforceTrueFullscreen()
+            }
+        }
+        @Suppress("DEPRECATION")
+        window?.decorView?.setOnSystemUiVisibilityChangeListener(listener)
+        onDispose {
+            if (window != null) {
+                window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
+                val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+                insetsController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                @Suppress("DEPRECATION")
+                window.decorView.setOnSystemUiVisibilityChangeListener(null)
+            }
+        }
+    }
+
+    LaunchedEffect(orientation, showControls) {
+        enforceTrueFullscreen()
+    }
 
     // Instant stop when leaving screen or pressing system back
     BackHandler {
@@ -553,6 +624,11 @@ fun VideoPlayerScreen(
                             }
                         }
 
+                        // Video Playlist / Queue Button
+                        IconButton(onClick = { showQueueSheet = true }) {
+                            Icon(Icons.Default.FormatListBulleted, contentDescription = "Playlist", tint = Color.White)
+                        }
+
                         // Fit / Zoom Aspect Ratio Toggle
                         IconButton(onClick = { isFitMode = !isFitMode }) {
                             Icon(
@@ -641,7 +717,7 @@ fun VideoPlayerScreen(
                                     Icon(Icons.Default.FastRewind, contentDescription = "Rewind 10s", tint = Color.White, modifier = Modifier.size(28.dp))
                                 }
 
-                                IconButton(onClick = { viewModel.seekBackward() }) {
+                                IconButton(onClick = { viewModel.playPrevious() }) {
                                     Icon(Icons.Default.SkipPrevious, contentDescription = "Prev", tint = Color.White, modifier = Modifier.size(28.dp))
                                 }
 
@@ -660,7 +736,7 @@ fun VideoPlayerScreen(
                                     )
                                 }
 
-                                IconButton(onClick = { viewModel.seekForward() }) {
+                                IconButton(onClick = { viewModel.playNext() }) {
                                     Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = Color.White, modifier = Modifier.size(28.dp))
                                 }
 
@@ -675,6 +751,162 @@ fun VideoPlayerScreen(
                             }
                         }
                     }
+                }
+            }
+        }
+
+        // Functional Video Playlist / Queue Modal Bottom Sheet
+        if (showQueueSheet) {
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ModalBottomSheet(
+                onDismissRequest = { showQueueSheet = false },
+                sheetState = sheetState,
+                containerColor = Color(0xFF110D18),
+                contentColor = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Video Playlist",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = VioletDuskPeach
+                            )
+                            Text(
+                                text = "${playlist.size} video files in cloud library",
+                                fontSize = 12.sp,
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
+                        IconButton(onClick = { showQueueSheet = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    if (playlist.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(140.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No other video files found in library",
+                                color = Color.White.copy(alpha = 0.5f),
+                                fontSize = 13.sp
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(380.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            itemsIndexed(playlist, key = { _, item -> item.id }) { index, track ->
+                                val isCurrent = track.id == currentFile?.id
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(
+                                            if (isCurrent) Color(0xFF8B5CF6).copy(alpha = 0.25f)
+                                            else Color.White.copy(alpha = 0.05f)
+                                        )
+                                        .border(
+                                            width = if (isCurrent) 1.2.dp else 0.5.dp,
+                                            color = if (isCurrent) Color(0xFFA855F7) else Color.White.copy(alpha = 0.1f),
+                                            shape = RoundedCornerShape(14.dp)
+                                        )
+                                        .clickable {
+                                            viewModel.playFile(track)
+                                            showQueueSheet = false
+                                        }
+                                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(34.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        if (isCurrent) VioletDuskPeach
+                                                        else Color.White.copy(alpha = 0.1f)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                if (isCurrent && playerState.isPlaying) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Equalizer,
+                                                        contentDescription = null,
+                                                        tint = Color(0xFF451A03),
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        text = "${index + 1}",
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = if (isCurrent) Color(0xFF451A03) else Color.White
+                                                    )
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.width(12.dp))
+
+                                            Column {
+                                                Text(
+                                                    text = track.name.substringBeforeLast('.'),
+                                                    fontSize = 13.sp,
+                                                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
+                                                    color = if (isCurrent) VioletDuskPeach else Color.White,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                                Text(
+                                                    text = track.formattedSize,
+                                                    fontSize = 11.sp,
+                                                    color = Color.White.copy(alpha = 0.5f)
+                                                )
+                                            }
+                                        }
+
+                                        if (isCurrent) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .background(Color(0xFFA855F7))
+                                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                                            ) {
+                                                Text("PLAYING", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

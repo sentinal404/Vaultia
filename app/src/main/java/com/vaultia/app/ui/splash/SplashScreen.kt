@@ -43,6 +43,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 fun SplashScreen(
     secureStorage: SecureStorageManager,
     vaultRepository: VaultRepository,
+    onNavigateToWelcome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
     onNavigateToLock: () -> Unit,
     onNavigateToDashboard: () -> Unit
@@ -57,6 +58,14 @@ fun SplashScreen(
         )
 
         delay(400)
+
+        // First-launch welcome onboarding check
+        if (!secureStorage.isFirstLaunchCompleted) {
+            statusText = "Welcome to Vaultia..."
+            delay(250)
+            onNavigateToWelcome()
+            return@LaunchedEffect
+        }
 
         // Check local configuration
         if (!secureStorage.isTelegramConfigured) {
@@ -89,10 +98,24 @@ fun SplashScreen(
         onNavigateToDashboard()
     }
 
+    val view = androidx.compose.ui.platform.LocalView.current
+    if (!view.isInEditMode) {
+        androidx.compose.runtime.SideEffect {
+            val window = (view.context as? android.app.Activity)?.window
+            if (window != null) {
+                window.statusBarColor = android.graphics.Color.parseColor("#07040B")
+                window.navigationBarColor = android.graphics.Color.parseColor("#07040B")
+                val controller = androidx.core.view.WindowCompat.getInsetsController(window, view)
+                controller.isAppearanceLightStatusBars = false
+                controller.isAppearanceLightNavigationBars = false
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(Color(0xFF07040B)),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -111,13 +134,13 @@ fun SplashScreen(
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.White
             )
 
             Text(
                 text = "Private Cloud Storage Vault",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                color = Color.White.copy(alpha = 0.65f)
             )
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -133,7 +156,7 @@ fun SplashScreen(
             Text(
                 text = statusText,
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                color = Color.White.copy(alpha = 0.5f)
             )
         }
     }

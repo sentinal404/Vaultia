@@ -39,7 +39,12 @@ class SecureStorageManager(context: Context) {
         private const val KEY_API_HASH = "key_tg_api_hash"
         private const val KEY_CUSTOM_API_URL = "key_tg_custom_api_url"
         private const val KEY_THEME_MODE = "key_theme_mode" // "LIGHT", "DARK", "SYSTEM"
+        private const val KEY_FIRST_LAUNCH_COMPLETED = "key_first_launch_completed"
     }
+
+    var isFirstLaunchCompleted: Boolean
+        get() = prefs.getBoolean(KEY_FIRST_LAUNCH_COMPLETED, false)
+        set(value) = prefs.edit().putBoolean(KEY_FIRST_LAUNCH_COMPLETED, value).apply()
 
     var themeMode: String
         get() = prefs.getString(KEY_THEME_MODE, "LIGHT") ?: "LIGHT"

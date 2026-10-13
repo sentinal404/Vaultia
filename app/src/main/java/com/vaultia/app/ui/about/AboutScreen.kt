@@ -130,7 +130,7 @@ fun AboutScreen(
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = "Version 1.0.0 (Production Release)",
+                                text = "Version 2.0.0 (Evolution Edition)",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = ClayPrimary
@@ -320,7 +320,7 @@ fun AboutScreen(
 
             item {
                 Text(
-                    text = "© 2026 Rishi Shakya • Vaultia v1.0.0",
+                    text = "© 2026 Rishi Shakya • Vaultia v2.0.0 (Evolution Edition)",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     fontSize = 11.sp,

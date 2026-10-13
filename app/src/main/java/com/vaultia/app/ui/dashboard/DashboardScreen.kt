@@ -99,6 +99,7 @@ import com.vaultia.app.ui.components.ClayButton
 import com.vaultia.app.ui.components.ClayCard
 import com.vaultia.app.ui.components.Vaultia3DIcon
 import com.vaultia.app.ui.components.VaultiaIconType
+import com.vaultia.app.ui.components.Vaultia3DFolderCard
 import com.vaultia.app.ui.components.VaultiaBottomNav
 import com.vaultia.app.ui.components.VaultiaBrandLogo
 import com.vaultia.app.ui.viewmodel.TransferViewModel
@@ -495,11 +496,11 @@ fun DashboardScreen(
                 ) {
                     // Videos Folder
                     item {
-                        CategoryFolderCard(
+                        Vaultia3DFolderCard(
                             title = "Videos",
                             filesCount = videoFiles.size,
                             sizeBytes = videoBytes,
-                            iconType = VaultiaIconType.VIDEO,
+                            baseColor = Color(0xFF8B5CF6),
                             onClick = {
                                 vaultViewModel.selectMediaType(MediaType.VIDEOS)
                                 onNavigateTab("library")
@@ -509,11 +510,11 @@ fun DashboardScreen(
 
                     // Audio Folder
                     item {
-                        CategoryFolderCard(
+                        Vaultia3DFolderCard(
                             title = "Audio",
                             filesCount = audioFiles.size,
                             sizeBytes = audioBytes,
-                            iconType = VaultiaIconType.AUDIO,
+                            baseColor = Color(0xFFEC4899),
                             onClick = {
                                 vaultViewModel.selectMediaType(MediaType.AUDIO)
                                 onNavigateTab("library")
@@ -523,11 +524,11 @@ fun DashboardScreen(
 
                     // Images Folder
                     item {
-                        CategoryFolderCard(
-                            title = "Images",
+                        Vaultia3DFolderCard(
+                            title = "Photos",
                             filesCount = imageFiles.size,
                             sizeBytes = imageBytes,
-                            iconType = VaultiaIconType.PHOTO,
+                            baseColor = Color(0xFF06B6D4),
                             onClick = {
                                 vaultViewModel.selectMediaType(MediaType.IMAGES)
                                 onNavigateTab("library")
@@ -537,11 +538,11 @@ fun DashboardScreen(
 
                     // Documents Folder
                     item {
-                        CategoryFolderCard(
-                            title = "Docs",
+                        Vaultia3DFolderCard(
+                            title = "Documents",
                             filesCount = docFiles.size,
                             sizeBytes = docBytes,
-                            iconType = VaultiaIconType.DOCUMENT,
+                            baseColor = Color(0xFF3B82F6),
                             onClick = {
                                 vaultViewModel.selectMediaType(MediaType.DOCUMENTS)
                                 onNavigateTab("library")
@@ -553,11 +554,10 @@ fun DashboardScreen(
                     items(folders, key = { it.id }) { customFolder ->
                         val count = allFiles.count { it.folderId == customFolder.id }
                         val folderColor = try { Color(android.graphics.Color.parseColor(customFolder.colorHex)) } catch (_: Exception) { Color(0xFF8B5CF6) }
-                        FolderCardView(
-                            name = customFolder.name,
-                            count = count,
-                            color = folderColor,
-                            onDelete = { vaultViewModel.deleteFolder(customFolder.id) },
+                        Vaultia3DFolderCard(
+                            title = customFolder.name,
+                            filesCount = count,
+                            baseColor = folderColor,
                             onClick = {
                                 vaultViewModel.selectMediaType(MediaType.ALL)
                                 onNavigateTab("library")

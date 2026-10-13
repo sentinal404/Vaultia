@@ -36,6 +36,8 @@ class VideoPlayerManager(private val context: Context) {
     private val _playerState = MutableStateFlow(VideoPlayerState())
     val playerState: StateFlow<VideoPlayerState> = _playerState.asStateFlow()
 
+    var onPlaybackEnded: (() -> Unit)? = null
+
     init {
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -46,6 +48,9 @@ class VideoPlayerManager(private val context: Context) {
                 _playerState.value = _playerState.value.copy(
                     isBuffering = playbackState == Player.STATE_BUFFERING
                 )
+                if (playbackState == Player.STATE_ENDED) {
+                    onPlaybackEnded?.invoke()
+                }
                 updateState()
             }
 

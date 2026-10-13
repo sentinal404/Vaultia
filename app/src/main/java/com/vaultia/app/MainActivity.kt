@@ -38,6 +38,7 @@ import com.vaultia.app.ui.library.LibraryScreen
 import com.vaultia.app.ui.lock.LockScreen
 import com.vaultia.app.ui.navigation.NavRoutes
 import com.vaultia.app.ui.onboarding.OnboardingScreen
+import com.vaultia.app.ui.onboarding.WelcomeOnboardingScreen
 import com.vaultia.app.ui.player.AudioPlayerScreen
 import com.vaultia.app.ui.player.ImageViewerScreen
 import com.vaultia.app.ui.player.VideoPlayerScreen
@@ -126,7 +127,10 @@ fun VaultiaAppNavigation(
         }
     }
 
+    val isImmersiveMedia = currentRoute.startsWith("player_video") || currentRoute.startsWith("player_audio") || currentRoute.startsWith("viewer_image")
+
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedVisibility(
                 visible = isPrimaryTab,
@@ -149,7 +153,7 @@ fun VaultiaAppNavigation(
         NavHost(
             navController = navController,
             startDestination = NavRoutes.Splash.route,
-            modifier = Modifier.padding(innerPadding),
+            modifier = if (isImmersiveMedia) Modifier else Modifier.padding(innerPadding),
             enterTransition = {
                 val fromPrimary = initialState.destination.route in primaryRoutes
                 val toPrimary = targetState.destination.route in primaryRoutes
@@ -222,6 +226,11 @@ fun VaultiaAppNavigation(
                 SplashScreen(
                     secureStorage = app.secureStorage,
                     vaultRepository = app.vaultRepository,
+                    onNavigateToWelcome = {
+                        navController.navigate(NavRoutes.Welcome.route) {
+                            popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                        }
+                    },
                     onNavigateToOnboarding = {
                         navController.navigate(NavRoutes.Onboarding.route) {
                             popUpTo(NavRoutes.Splash.route) { inclusive = true }
@@ -235,6 +244,24 @@ fun VaultiaAppNavigation(
                     onNavigateToDashboard = {
                         navController.navigate(NavRoutes.Dashboard.route) {
                             popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            // First-Time Welcome Onboarding Screen (Matching Images 2 & 5)
+            composable(NavRoutes.Welcome.route) {
+                WelcomeOnboardingScreen(
+                    onComplete = {
+                        app.secureStorage.isFirstLaunchCompleted = true
+                        if (!app.secureStorage.isTelegramConfigured) {
+                            navController.navigate(NavRoutes.Onboarding.route) {
+                                popUpTo(NavRoutes.Welcome.route) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(NavRoutes.Dashboard.route) {
+                                popUpTo(NavRoutes.Welcome.route) { inclusive = true }
+                            }
                         }
                     }
                 )
@@ -336,7 +363,8 @@ fun VaultiaAppNavigation(
                     },
                     onNavigateTab = navigateTab,
                     onNavigateToAutoBackup = { navController.navigate(NavRoutes.AutoBackup.route) },
-                    onNavigateToAbout = { navController.navigate(NavRoutes.About.route) }
+                    onNavigateToAbout = { navController.navigate(NavRoutes.About.route) },
+                    onNavigateToWelcome = { navController.navigate(NavRoutes.Welcome.route) }
                 )
             }
 

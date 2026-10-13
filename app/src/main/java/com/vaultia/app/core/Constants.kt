@@ -1,6 +1,10 @@
 package com.vaultia.app.core
 
 object Constants {
+    const val APP_VERSION = "2.0.0"
+    const val APP_VERSION_CODE = 2
+    const val APP_BUILD_NAME = "Vaultia v2.0.0 (Evolution Edition)"
+
     const val TELEGRAM_API_BASE_URL = "https://api.telegram.org"
     const val DEFAULT_CHUNK_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB (ultra-fast zero-buffering chunk size)
     const val MIN_CHUNK_SIZE_BYTES = 5 * 1024 * 1024     // 5 MB

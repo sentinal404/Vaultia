@@ -76,6 +76,7 @@ import com.vaultia.app.ui.components.ClayButton
 import com.vaultia.app.ui.components.ClayCard
 import com.vaultia.app.ui.components.VaultiaBottomNav
 import com.vaultia.app.ui.components.VaultiaTopAppBar
+import com.vaultia.app.ui.components.VaultiaSwitch
 import com.vaultia.app.ui.viewmodel.SettingsViewModel
 
 @Composable
@@ -85,7 +86,8 @@ fun SettingsScreen(
     onLogout: () -> Unit,
     onNavigateTab: (String) -> Unit,
     onNavigateToAutoBackup: () -> Unit = {},
-    onNavigateToAbout: () -> Unit = {}
+    onNavigateToAbout: () -> Unit = {},
+    onNavigateToWelcome: () -> Unit = {}
 ) {
     val settings by settingsViewModel.settings.collectAsState()
     val workers by settingsViewModel.workers.collectAsState()
@@ -768,28 +770,36 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable { settingsViewModel.setWifiOnlyUploads(!settings.wifiOnlyUploads) }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Wi-Fi Only Uploads", fontSize = 14.sp)
-                            Switch(
+                            VaultiaSwitch(
                                 checked = settings.wifiOnlyUploads,
-                                onCheckedChange = { settingsViewModel.setWifiOnlyUploads(it) },
-                                colors = SwitchDefaults.colors(checkedThumbColor = ClayPrimary)
+                                onCheckedChange = { settingsViewModel.setWifiOnlyUploads(it) }
                             )
                         }
 
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable { settingsViewModel.setAutoResume(!settings.autoResume) }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Auto Resume Transfers", fontSize = 14.sp)
-                            Switch(
+                            VaultiaSwitch(
                                 checked = settings.autoResume,
-                                onCheckedChange = { settingsViewModel.setAutoResume(it) },
-                                colors = SwitchDefaults.colors(checkedThumbColor = ClayPrimary)
+                                onCheckedChange = { settingsViewModel.setAutoResume(it) }
                             )
                         }
                     }
@@ -808,15 +818,25 @@ fun SettingsScreen(
                 ClayCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    if (!settings.isAppLockEnabled) {
+                                        showPinDialog = true
+                                    } else {
+                                        settingsViewModel.setAppLock(false)
+                                    }
+                                }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text("App PIN Lock", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                 Text("Require PIN to open Vaultia", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                             }
-                            Switch(
+                            VaultiaSwitch(
                                 checked = settings.isAppLockEnabled,
                                 onCheckedChange = { enabled ->
                                     if (enabled) {
@@ -824,26 +844,28 @@ fun SettingsScreen(
                                     } else {
                                         settingsViewModel.setAppLock(false)
                                     }
-                                },
-                                colors = SwitchDefaults.colors(checkedThumbColor = ClayPrimary)
+                                }
                             )
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable { settingsViewModel.setBiometric(!settings.isBiometricEnabled) }
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text("Biometric Unlock", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                 Text("Use fingerprint / face unlock", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                             }
-                            Switch(
+                            VaultiaSwitch(
                                 checked = settings.isBiometricEnabled,
-                                onCheckedChange = { settingsViewModel.setBiometric(it) },
-                                colors = SwitchDefaults.colors(checkedThumbColor = ClayPrimary)
+                                onCheckedChange = { settingsViewModel.setBiometric(it) }
                             )
                         }
                     }
@@ -912,11 +934,19 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Vaultia v1.0.0", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("Vaultia v2.0.0 (Evolution Edition)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                 Text("Built by Rishi Shakya • Open Source", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
+                        ClayButton(
+                            text = "Showcase Welcome & Feature Tour",
+                            icon = Icons.Default.CloudSync,
+                            onClick = onNavigateToWelcome,
+                            modifier = Modifier.fillMaxWidth(),
+                            isPrimary = true
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
                         ClayButton(
                             text = "About Vaultia & Developer Profile",
                             icon = Icons.Default.Info,

@@ -123,8 +123,7 @@ fun VaultiaFileThumbnail(
                             Brush.radialGradient(
                                 listOf(badgeColor, badgeColor.copy(alpha = 0.4f))
                             )
-                        )
-                        .border(1.5.dp, Color.White.copy(alpha = 0.85f), CircleShape),
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -141,8 +140,7 @@ fun VaultiaFileThumbnail(
                     modifier = Modifier
                         .size(46.dp)
                         .clip(CircleShape)
-                        .background(badgeColor.copy(alpha = 0.35f))
-                        .border(1.2.dp, rimColor, CircleShape),
+                        .background(badgeColor.copy(alpha = 0.35f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

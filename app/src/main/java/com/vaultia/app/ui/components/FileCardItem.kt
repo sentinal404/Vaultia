@@ -1,7 +1,10 @@
 package com.vaultia.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +19,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Image
@@ -60,6 +65,9 @@ fun FileCardItem(
     onDownload: () -> Unit,
     onDelete: () -> Unit,
     onMoveToFolder: ((String?) -> Unit)? = null,
+    isSelected: Boolean = false,
+    isSelectionMode: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -99,7 +107,16 @@ fun FileCardItem(
         ClayCard(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .then(
+                if (isSelected) Modifier.border(1.5.dp, Color(0xFFA855F7), RoundedCornerShape(20.dp))
+                else Modifier
+            )
+            .pointerInput(isSelectionMode) {
+                detectTapGestures(
+                    onTap = { onClick() },
+                    onLongPress = { onLongClick?.invoke() }
+                )
+            }
     ) {
         Row(
             modifier = Modifier
@@ -112,6 +129,17 @@ fun FileCardItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
+                if (isSelectionMode) {
+                    Icon(
+                        imageVector = if (isSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                        contentDescription = if (isSelected) "Selected" else "Unselected",
+                        tint = if (isSelected) Color(0xFFA855F7) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .size(24.dp)
+                    )
+                }
+
                 val iconType = when (file.mediaType) {
                     MediaType.VIDEOS -> VaultiaIconType.VIDEO
                     MediaType.AUDIO -> VaultiaIconType.AUDIO

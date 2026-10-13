@@ -2,6 +2,7 @@ package com.vaultia.app.ui.navigation
 
 sealed class NavRoutes(val route: String) {
     object Splash : NavRoutes("splash")
+    object Welcome : NavRoutes("welcome")
     object Onboarding : NavRoutes("onboarding")
     object Lock : NavRoutes("lock")
     object Dashboard : NavRoutes("dashboard")
