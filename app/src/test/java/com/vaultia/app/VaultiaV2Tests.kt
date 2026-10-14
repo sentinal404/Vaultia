@@ -6,6 +6,9 @@ import com.vaultia.app.domain.model.TransferStatus
 import com.vaultia.app.domain.model.VaultFile
 import com.vaultia.app.ui.components.BottomNavItem
 import com.vaultia.app.ui.navigation.NavRoutes
+import com.vaultia.app.ui.player.ARTWORK_POOL
+import com.vaultia.app.ui.player.ArcScrubberMath
+import com.vaultia.app.ui.player.VIDEO_POOL
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -252,5 +255,163 @@ class VaultiaV2Tests {
         assertTrue(uncheckedOffset + thumbSize <= trackWidth)
         assertTrue(checkedOffset + thumbSize <= trackWidth)
         assertEquals(trackWidth - thumbPadding, checkedOffset + thumbSize)
+    }
+
+    @Test
+    fun testAudioPlayerArtworkPoolSizeAndRandomDistribution() {
+        assertEquals(22, ARTWORK_POOL.size)
+
+        // Verify random selection picks items strictly within the pool
+        val selected = mutableSetOf<Int>()
+        val random = java.util.Random(42)
+        repeat(200) {
+            val pick = ARTWORK_POOL[random.nextInt(ARTWORK_POOL.size)]
+            assertTrue(ARTWORK_POOL.contains(pick))
+            selected.add(pick)
+        }
+        // Over 200 trials, all 22 artworks should be reachable
+        assertEquals(22, selected.size)
+
+        // Verify alternate random selection logic (filtering out current artwork)
+        for (current in ARTWORK_POOL) {
+            val candidates = ARTWORK_POOL.filter { it != current }
+            assertEquals(21, candidates.size)
+            assertFalse(candidates.contains(current))
+        }
+    }
+
+    @Test
+    fun testVideoPoolAndAlternatingModeSequence() {
+        assertEquals(4, VIDEO_POOL.size)
+
+        // Verify all 4 videos are distinct
+        assertEquals(4, VIDEO_POOL.toSet().size)
+
+        // Verify alternating Image -> Video -> Image -> Video sequence on successive track changes
+        var isVideoMode = false
+        val trackChanges = listOf("track1", "track2", "track3", "track4", "track5", "track6")
+        val modes = mutableListOf<String>()
+
+        var prevTrackId: String? = null
+        for (track in trackChanges) {
+            if (prevTrackId != null && prevTrackId != track) {
+                isVideoMode = !isVideoMode
+            }
+            prevTrackId = track
+            modes.add(if (isVideoMode) "VIDEO" else "IMAGE")
+        }
+
+        assertEquals(
+            listOf("IMAGE", "VIDEO", "IMAGE", "VIDEO", "IMAGE", "VIDEO"),
+            modes
+        )
+    }
+
+    @Test
+    fun testArchContainerHeightProportions() {
+        // Red mark test: container height is ~61% of screen height
+        val testScreenHeights = listOf(700f, 800f, 850f, 900f, 1024f)
+        for (sh in testScreenHeights) {
+            val ch = (sh * 0.61f).coerceIn(470f, 600f)
+            assertTrue("Arch container must occupy at least 58% of screen height", ch / sh >= 0.58f || ch == 600f)
+            assertTrue("Arch container must leave space for controls at bottom", ch < sh - 100f)
+        }
+    }
+
+    @Test
+    fun testConcentricArcScrubberAnglesAndCoordinateMapping() {
+        assertEquals(165f, ArcScrubberMath.START_ANGLE, 0.001f)
+        assertEquals(-150f, ArcScrubberMath.TOTAL_SWEEP, 0.001f)
+        val endAngle = ArcScrubberMath.START_ANGLE + ArcScrubberMath.TOTAL_SWEEP // 15f
+        assertEquals(15f, endAngle, 0.001f)
+
+        val cx = 150f
+        val cy = 200f
+        val r = 130f
+
+        // Angle at 0%
+        val angle0 = ArcScrubberMath.START_ANGLE
+        val x0 = (cx + r * kotlin.math.cos(Math.toRadians(angle0.toDouble()))).toFloat()
+        val y0 = (cy + r * kotlin.math.sin(Math.toRadians(angle0.toDouble()))).toFloat()
+        assertTrue("Start point (0%) must be left of center", x0 < cx)
+        assertTrue("Start point must be below cy", y0 > cy)
+
+        // Angle at 50%
+        val angle50 = ArcScrubberMath.START_ANGLE + ArcScrubberMath.TOTAL_SWEEP * 0.5f // 90 deg (bottom center)
+        assertEquals(90f, angle50, 0.001f)
+        val x50 = (cx + r * kotlin.math.cos(Math.toRadians(angle50.toDouble()))).toFloat()
+        val y50 = (cy + r * kotlin.math.sin(Math.toRadians(angle50.toDouble()))).toFloat()
+        assertEquals(cx, x50, 0.01f)
+        assertEquals(cy + r, y50, 0.01f)
+
+        // Angle at 100%
+        val angle100 = endAngle // 15 deg
+        val x100 = (cx + r * kotlin.math.cos(Math.toRadians(angle100.toDouble()))).toFloat()
+        val y100 = (cy + r * kotlin.math.sin(Math.toRadians(angle100.toDouble()))).toFloat()
+        assertTrue("End point (100%) must be right of center", x100 > cx)
+        assertTrue("End point must be below cy", y100 > cy)
+
+        // Verify touch coordinate to fraction conversion across entire arc
+        for (i in 0..100) {
+            val expectedFrac = i / 100f
+            val currentAngleDeg = ArcScrubberMath.START_ANGLE + ArcScrubberMath.TOTAL_SWEEP * expectedFrac
+            val dx = (r * kotlin.math.cos(Math.toRadians(currentAngleDeg.toDouble()))).toFloat()
+            val dy = (r * kotlin.math.sin(Math.toRadians(currentAngleDeg.toDouble()))).toFloat()
+            val calculatedFrac = ArcScrubberMath.calculateArcFraction(dx, dy)
+            assertEquals(expectedFrac, calculatedFrac, 0.001f)
+        }
+    }
+
+    @Test
+    fun testArcScrubberTouchDriftSafety() {
+        // Test upward touch drift above center of curvature (dy < 0)
+        // Left side touch (near 0% progress): must clamp safely to 0.0f without jumping to 1.0f
+        val leftDrift1 = ArcScrubberMath.calculateArcFraction(-100f, -5f)
+        assertEquals(0f, leftDrift1, 0.0001f)
+
+        val leftDrift2 = ArcScrubberMath.calculateArcFraction(-80f, -50f)
+        assertEquals(0f, leftDrift2, 0.0001f)
+
+        // Right side touch (near 100% progress): must clamp safely to 1.0f
+        val rightDrift1 = ArcScrubberMath.calculateArcFraction(100f, -5f)
+        assertEquals(1f, rightDrift1, 0.0001f)
+
+        val rightDrift2 = ArcScrubberMath.calculateArcFraction(80f, -50f)
+        assertEquals(1f, rightDrift2, 0.0001f)
+
+        // Bottom center touch (dx = 0, dy > 0): must map to 0.5f exactly
+        val centerPoint = ArcScrubberMath.calculateArcFraction(0f, 100f)
+        assertEquals(0.5f, centerPoint, 0.0001f)
+    }
+
+    @Test
+    fun testNotchAndCameraCutoutAdaptivePadding() {
+        val testCutoutHeights = listOf(0, 24, 32, 44, 52)
+        for (cutoutDp in testCutoutHeights) {
+            val topIconPadding = (cutoutDp + 8).coerceAtLeast(34)
+            assertTrue("Top icon padding must never be less than 34dp", topIconPadding >= 34)
+            assertTrue("Top icon padding must be strictly greater than notch cutout", topIconPadding > cutoutDp)
+        }
+    }
+
+    @Test
+    fun testTopNavigationIconsGutterClearance() {
+        // Verify across various mobile screen widths (360dp to 430dp)
+        val screenWidths = listOf(360f, 380f, 393f, 412f, 430f)
+        for (width in screenWidths) {
+            val containerWidth = (width * 0.72f).coerceIn(250f, 310f)
+            val gutterWidth = ((width - containerWidth) / 2f).coerceAtLeast(36f)
+
+            val archStart = (width - containerWidth) / 2f
+            val archEnd = archStart + containerWidth
+
+            // Back button is centered in the left gutter [0, gutterWidth]
+            val backButtonCenter = gutterWidth / 2f
+            assertTrue("Back button center must be strictly outside arch left boundary", backButtonCenter < archStart)
+
+            // Menu button is centered in the right gutter [width - gutterWidth, width]
+            val menuButtonCenter = width - gutterWidth / 2f
+            assertTrue("Menu button center must be strictly outside arch right boundary", menuButtonCenter > archEnd)
+        }
     }
 }

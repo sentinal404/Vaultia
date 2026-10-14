@@ -29,28 +29,21 @@
 
 ## 📸 Interface Gallery
 
-Vaultia features a **Tactile Claymorphism** design system with two distinct themes: **Obsidian Dark** (Aurora neon accents) and **Pearl Titanium Light** (soft tactile depth and calibrated contrast).
+Vaultia features a refined 2026 **Tactile Claymorphism & Obsidian/Pearl Design System** with dynamic 3D glassmorphic elements, a physics-driven floating curved bottom navigation bar, and an immersive media player experience.
 
-### 🌌 Primary Views
+### 🌌 Primary Views & Player
 
-| Obsidian Dark Dashboard | Pearl Light Dashboard | Drive Library Grid |
+| 🏠 Vault Dashboard | 📂 Drive Library Grid | 🎵 Hi-Fi Audio Player (Anime & Video) |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/01_dashboard_dark.jpeg" width="260" alt="Vaultia Dashboard Dark" /> | <img src="docs/screenshots/04_dashboard_light.jpeg" width="260" alt="Vaultia Dashboard Light" /> | <img src="docs/screenshots/02_library_grid_dark.jpeg" width="260" alt="Vaultia Library Grid" /> |
-| *Real-time storage metric, folder stats & cloud actions* | *Tactile Pearl Titanium claymorphic dashboard* | *Instant 4K video cards, media filter chips & size badges* |
+| <img src="docs/screenshots/01_vault_dashboard.jpeg" width="260" alt="Vaultia Dashboard" /> | <img src="docs/screenshots/02_drive_library.jpeg" width="260" alt="Drive Library Grid" /> | <img src="docs/screenshots/03_audio_player_anime.jpeg" width="260" alt="Audio Player with Anime Artwork" /> |
+| *Real-time storage metric, 3D translucent folders & cloud actions* | *Instant media cards, filter chips, circular badges & search* | *Extended arch container, dynamic anime art/video & violet arc scrubber* |
 
-### 🎬 Media Playback & Transfers
+### ⚙️ System Controls & Automation
 
-| Direct MTProto 4K Player | Hi-Fi Audio Player | Multi-Worker Uploading |
+| ⚙️ MTProto Engine & Settings | 🔄 Auto-Backup & Sync Schedule | ⚡ Transfers Engine |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/09_video_player.jpeg" width="260" alt="MTProto Video Player" /> | <img src="docs/screenshots/07_audio_player.jpeg" width="260" alt="Audio Player Screen" /> | <img src="docs/screenshots/06_transfers_light.jpeg" width="260" alt="Parallel Chunk Transfers" /> |
-| *Zero-buffering on-demand HTTP Range chunk streaming* | *Turntable visualizer & background media playback* | *Multi-worker bot concurrency with live chunk counters* |
-
-### ⚙️ Engine Status & Settings
-
-| MTProto Engine Settings (Dark) | Settings & Themes (Light) | Library Grid (Light) |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/03_settings_dark.jpeg" width="260" alt="MTProto Settings Dark" /> | <img src="docs/screenshots/08_settings_light.jpeg" width="260" alt="Settings Screen Light" /> | <img src="docs/screenshots/05_library_grid_light.jpeg" width="260" alt="Drive Library Light" /> |
-| *Direct DC connection ping, Bot API credentials & wipe* | *Theme switcher (Obsidian / Pearl / System)* | *Smooth light-mode grid with clear type hierarchy* |
+| <img src="docs/screenshots/04_settings_mtproto.jpeg" width="260" alt="Settings & MTProto Engine" /> | <img src="docs/screenshots/05_auto_backup_sync.jpeg" width="260" alt="Auto-Backup & Sync Schedule" /> | <img src="docs/screenshots/06_transfers_engine.jpeg" width="260" alt="Parallel Transfers Engine" /> |
+| *Direct DC connection ping (0ms), theme palette & Bot API credentials* | *Automated vault sync, conditions (Wi-Fi, Idle, Charging) & quotas* | *Real-time multi-worker upload/download queue progress* |
 
 ---
 
@@ -89,6 +82,22 @@ Vaultia features a **Tactile Claymorphism** design system with two distinct them
 ### 7. 🎨 Tactile Claymorphism UI
 - Handcrafted custom design system featuring soft dual shadows, pill navigation, tactile buttons, and reactive animations.
 - Full dual-palette support: **Obsidian Dark** (OLED pitch black with aurora glow) and **Pearl Titanium Light** (paper clay surfaces with accessible contrast).
+
+### 8. 🎵 Modern Hi-Fi Audio Player (Dynamic Anime Artworks & Video Loops)
+- **Extended Arch Container**: Touches the top screen edge with camera notch/cutout safe gutters and extends down to a deep rounded U-curve (~61% screen height) to showcase full character portraits and illustrations.
+- **Alternating Video & Image Mode**:
+  - Automatically alternates **Anime Image ↔ Looping Video** on every track change (`Image -> Video -> Image -> Video`).
+  - Curated library of **22 dynamic anime artworks** and **4 high-quality looping short videos**.
+  - **100% Muted Background Video**: Strictly muted (`volume = 0f`) so video audio never merges with your music.
+  - **Seamless Repeat Loop**: Videos repeat infinitely until the track changes or completes.
+  - Play/pause state is synchronized with audio playback.
+  - Interactive tap-to-shuffle allows cycling through media within the active mode.
+- **Concentric Arc Progress Scrubber**:
+  - Electric violet progress arc hugging the bottom curve with a dual-ring neon glowing thumb.
+  - Monotonic polar angle math with drift-safe quadrant normalization.
+- **Floating Controls Dock**:
+  - Anchored to the bottom with Shuffle, Previous, Next, and working Queue modal sheet.
+  - Elevated circular Play/Pause button with an ambient 360° neon violet halo that pops above the dock.
 
 ---
 
